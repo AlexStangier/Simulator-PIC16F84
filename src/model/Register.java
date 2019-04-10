@@ -56,17 +56,27 @@ public class Register extends Main {
     }
 
     /**
-     * increment the Program Counter by 1
+     * increment the Program Counter by 1 and make sure its value stays below 7 and above 0
      */
     public void incrementPCL() {
-        programm_Counter_Low++;
+        if (programm_Counter_Low < 7 || programm_Counter_Low >= 0) {
+            programm_Counter_Low++;
+        } else {
+            programm_Counter_Low = 0;
+        }
+
     }
 
     /**
-     * decrement the Program Counter by 1
+     * decrement the Program Counter by 1 and make sure to reset it back to 7 when its value would be smaller than 0
      */
     public void decrementPCL() {
-        programm_Counter_Low--;
+
+        if (programm_Counter_Low < 0) {
+            programm_Counter_Low = 7;
+        } else {
+            programm_Counter_Low--;
+        }
     }
 
     /**
