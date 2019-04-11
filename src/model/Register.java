@@ -6,7 +6,7 @@ import controller.Main;
 public class Register extends Main {
 
     //Initialization of RAM storage
-    byte[] ram_Bank0 = new byte[128];
+    static byte[] ram_Bank0 = new byte[128];
     //
     //  ram_Bank0[3]    PCL         Implemented separately
     //  ram_Bank0[4]    STATUS
@@ -16,7 +16,7 @@ public class Register extends Main {
     //  ram_Bank0[10]   PCLATH      Implemented separately
     //  ram_Bank0[11]   INTCON
     //
-    byte[] ram_Bank1 = new byte[128];
+    static byte[] ram_Bank1 = new byte[128];
     //
     //  ram_Bank0[3]    PCL         Implemented separately
     //  ram_Bank0[4]    STATUS
@@ -29,17 +29,20 @@ public class Register extends Main {
 
 
     //Initialization of the Programm Counter
-    byte programm_Counter_Low = 0;                                                  //Program Counter Latch Low     PCL
-    byte programm_Counter_High = 0;                                                 //Program Counter Latch High    PCLATH
+    static byte programm_Counter_Low = 0;                                                  //Program Counter Latch Low     PCL
+    static byte programm_Counter_High = 0;                                                 //Program Counter Latch High    PCLATH
 
     //Initialization of Programm Memory
-    short[] programm_Memory = new short[14336];                                     //1024 x 14B
+    static short[] programm_Memory = new short[14336];                                     //1024 x 14B
 
     //Initialization of the Working Register
-    byte working_Register = 0;
+    static byte working_Register = 0;
 
-    ///Initialization of the File Select Register                                   //contains pointer for indirect addressing
-    byte file_Save_Register = 0;
+    //Initialization of the Status Register
+
+
+    ///Initialization of the File Select Register                                          //contains pointer for indirect addressing
+    static byte file_Save_Register = 0;
 
     /**
      * Sets all Registers to null
@@ -59,10 +62,13 @@ public class Register extends Main {
      * increment the Program Counter by 1 and make sure its value stays below 7 and above 0
      */
     public void incrementPCL() {
-        if (programm_Counter_Low < 7 || programm_Counter_Low >= 0) {
-            programm_Counter_Low++;
-        } else {
-            programm_Counter_Low = 0;
+        switch (Register.programm_Counter_Low) {
+            case 7:
+                Register.programm_Counter_Low = 1;
+                break;
+            default:
+                Register.programm_Counter_Low++;
+                break;
         }
 
     }
@@ -71,12 +77,15 @@ public class Register extends Main {
      * decrement the Program Counter by 1 and make sure to reset it back to 7 when its value would be smaller than 0
      */
     public void decrementPCL() {
-
-        if (programm_Counter_Low < 0) {
-            programm_Counter_Low = 7;
-        } else {
-            programm_Counter_Low--;
+        switch (Register.programm_Counter_Low) {
+            case -1:
+                Register.programm_Counter_Low = 7;
+                break;
+            default:
+                Register.programm_Counter_Low--;
+                break;
         }
+
     }
 
     /**
