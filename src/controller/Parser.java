@@ -13,16 +13,25 @@ public class Parser {
     BufferedReader br;
     StringBuilder sb;
 
+
     /**
      * Is used to run all necessary methods to parse a text file into usable assembler commands
      *
      * @param pathToFile an absolute path to a text file containing all assembler commands
      * @return an array containing all assembler commands in order
      */
-    public String[] toParse(String pathToFile) {
+    public int[] toParse(String pathToFile) {
         //calling all methods to compose a command string array
-        String[] commands = cleanUpArray(retrieveCommands(readCommands(pathToFile)));
+        int[] commands = convertParserExport(cleanUpArray(retrieveCommands(readCommands(pathToFile))));
         return commands;
+    }
+
+    public int[] convertParserExport(String[] commandArray) {
+        int[] converted = new int[commandArray.length];
+        for (int x = 0; x < commandArray.length; x++) {
+            converted[x] = Integer.decode("0x" + commandArray[x]);
+        }
+        return converted;
     }
 
     /**

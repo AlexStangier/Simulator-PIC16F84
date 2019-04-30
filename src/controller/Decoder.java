@@ -3,8 +3,14 @@ package controller;
 
 public class Decoder {
 
+    /**
+     * Is used to determine between one of the four declared Operation decider types
+     *
+     * @param opCode Operation Code of which the type is to be determined
+     * @param op     Operation Object to flag
+     */
     void determineOperationType(int opCode, Operation op) {
-        int toCheck = opCode & 0b11_0000_0000_0000; //11_0000_0000_0000
+        int toCheck = opCode & 0b11_0000_0000_0000;
 
         switch (toCheck) {
             case 0x0:
@@ -45,30 +51,60 @@ public class Decoder {
 
     }
 
+    /**
+     * Mask an given OpCode with a bit mask to determine Operations
+     *
+     * @param opCode Operation Code that holds the information used to determine a Operation command
+     * @return a masked int
+     */
     int byteMask(int opCode) {
         int toReturn = opCode & 0b11_1111_0000_0000;
         return toReturn;
     }
 
+    /**
+     * Mask an given OpCode with a bit mask to determine Operations
+     *
+     * @param opCode Operation Code that holds the information used to determine a Operation command
+     * @return a masked int
+     */
     int bitMask(int opCode) {
         int toReturn = opCode & 0b11_1100_0000_0000;
         return toReturn;
     }
 
+    /**
+     * Mask an given OpCode with a bit mask to determine Operations
+     *
+     * @param opCode Operation Code that holds the information used to determine a Operation command
+     * @return a masked int
+     */
     int literalMask(int opCode) {
         int toReturn = (opCode & 0b11_1111_0000_0000);
         return toReturn;
     }
 
+    /**
+     * Mask an given OpCode with a bit mask to determine Operations
+     *
+     * @param opCode Operation Code that holds the information used to determine a Operation command
+     * @return a masked int
+     */
     int controlMask(int opCode) {
         int toReturn = opCode & 0b11_1000_0000_0000;
         return toReturn;
     }
 
+    /**
+     * Is used to retrieve the precise command from a opCode
+     *
+     * @param opCode int holding an Operation Code
+     * @param op     Operation Object to flag
+     */
     void handleByte(int opCode, Operation op) {
 
         determineDestinationBit(opCode, op);
-        assignByteAddress(opCode, op);
+        assignBitAddress(opCode, op);
 
         switch (byteMask(opCode)) {
             case 0x0700:
@@ -137,10 +173,16 @@ public class Decoder {
 
     }
 
+    /**
+     * Is used to retrieve the precise command from a opCode
+     *
+     * @param opCode int holding an Operation Code
+     * @param op     Operation Object to flag
+     */
     void handleBit(int opCode, Operation op) {
 
         assignBitAddress(opCode, op);
-        assignBitindex(opCode, op);
+        assignBitAddress(opCode, op);
 
         switch (bitMask(opCode)) {
             case 0x1000:
@@ -158,6 +200,12 @@ public class Decoder {
         }
     }
 
+    /**
+     * Is used to retrieve the precise command from a opCode
+     *
+     * @param opCode int holding an Operation Code
+     * @param op     Operation Object to flag
+     */
     void handleLiteral(int opCode, Operation op) {
 
         assignLiteralAddress(opCode, op);
@@ -187,9 +235,15 @@ public class Decoder {
         }
     }
 
+    /**
+     * Is used to retrieve the precise command from a opCode
+     *
+     * @param opCode int holding an Operation Code
+     * @param op     Operation Object to flag
+     */
     void handleControl(int opCode, Operation op) {
 
-        assignControlAddress(opCode, op);
+        assignFileAddress(opCode, op);
 
         switch (opCode & 0b00_0000_1111_1111) {
             case 0x0008:
@@ -221,6 +275,12 @@ public class Decoder {
         }
     }
 
+    /**
+     * Method used to call the right handle  method based on a OperationTypeDecider field
+     *
+     * @param opCode int containing a Operation Code
+     * @param op     Operation Object to flag
+     */
     void determineCommand(int opCode, Operation op) {
 
         switch (op.typeDecider) {
@@ -241,6 +301,12 @@ public class Decoder {
 
     }
 
+    /**
+     * Is used to determine if the destination Bit is set or unset
+     *
+     * @param opCode int containing a Operation Code
+     * @param op     Operation Object from which the destination Bit is determined from
+     */
     void determineDestinationBit(int opCode, Operation op) {
         int toCheck = opCode & 0b00_0000_1000_0000;
         switch (toCheck) {
@@ -252,27 +318,35 @@ public class Decoder {
         }
     }
 
-    void assignByteAddress(int opCode, Operation op) {
-        int toCheck = opCode & 0b00_0000_0111_1111;
-        op.setFileAddress(toCheck);
-    }
-
+    /**
+     * Is used to retrieve a Bit Address from a given opCode
+     *
+     * @param opCode int holding an operation code
+     * @param op     Operation Object from which the Bit Address is determined from
+     */
     void assignBitAddress(int opCode, Operation op) {
-        int toCheck = opCode & 0b00_0000_0111_1111;
-        op.setFileAddress(toCheck);
+        int toCheck = opCode & 0x380;
+        op.setBitAddress(toCheck);
     }
 
-    void assignBitindex(int opCode, Operation op) {
-        int toCheck = opCode & 0b00_0011_1000_0000;
-        op.setBitIndex(toCheck);
-    }
-
+    /**
+     * Is used to assign a Literal address from a operation Code to an Operation object
+     *
+     * @param opCode int holding an operation code
+     * @param op     Operation Object to which the address is going to be assigned
+     */
     void assignLiteralAddress(int opCode, Operation op) {
-        int toCheck = opCode & 0b00_0000_1111_1111;
+        int toCheck = opCode & 0xFF;
         op.setLiteral(toCheck);
     }
 
-    void assignControlAddress(int opCode, Operation op) {
+    /**
+     * Is used to assign a Control Operation address from a operation Code to an Operation object
+     *
+     * @param opCode int holding an operation code
+     * @param op     Operation Object to which the address is going to be assigned
+     */
+    void assignFileAddress(int opCode, Operation op) {
         int toCheck = opCode & 0b00_0111_1111_1111;
         op.setFileAddress(toCheck);
     }

@@ -1,10 +1,8 @@
 package model;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class RegisterTest extends Register {
 
-    @org.junit.jupiter.api.Test
+    /** @org.junit.jupiter.api.Test
     void incrementPCL1() {
         incrementPCL();
         assertEquals(1,getProgramm_Counter_Low());      //1
@@ -45,5 +43,5 @@ class RegisterTest extends Register {
         decrementPCL();
         assertEquals(7,getProgramm_Counter_Low());      //8
         decrementPCL();
-    }
+    }**/
 }
