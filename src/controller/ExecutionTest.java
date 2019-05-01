@@ -193,6 +193,20 @@ class ExecutionTest extends Execution {
     @Test
     void xorwf1() {
         xorwf(op, reg);
-        assertEquals(workingReg ^ fileReg, reg.getWorking_Register());     //TODO check for carry, overflow/underflow ,zero
+        assertEquals(workingReg ^ fileReg, reg.getWorking_Register());
+    }
+
+    @Test
+    void bcf1() {
+        op.setBitAddress(1);
+        bcf(op, reg);
+        assertEquals(0x80, reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit()));
+    }
+
+    @Test
+    void bsf1() {
+        op.setBitAddress(4);
+        bsf(op, reg);
+        assertEquals(0x92, reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit()));
     }
 }

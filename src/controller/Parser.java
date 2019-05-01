@@ -13,7 +13,6 @@ public class Parser {
     BufferedReader br;
     StringBuilder sb;
 
-
     /**
      * Is used to run all necessary methods to parse a text file into usable assembler commands
      *
@@ -22,16 +21,17 @@ public class Parser {
      */
     public int[] toParse(String pathToFile) {
         //calling all methods to compose a command string array
-        int[] commands = convertParserExport(cleanUpArray(retrieveCommands(readCommands(pathToFile))));
+        int[] commands = convertToInt(cleanUpArray(retrieveCommands(readCommands(pathToFile))));
         return commands;
     }
 
-    public int[] convertParserExport(String[] commandArray) {
-        int[] converted = new int[commandArray.length];
-        for (int x = 0; x < commandArray.length; x++) {
-            converted[x] = Integer.decode("0x" + commandArray[x]);
+
+    int[] convertToInt(String[] stArr) {
+        int[] intArr = new int[stArr.length];
+        for (int i = 0; i < stArr.length; i++) {
+            intArr[i] = Integer.parseInt(stArr[i], 16);
         }
-        return converted;
+        return intArr;
     }
 
     /**

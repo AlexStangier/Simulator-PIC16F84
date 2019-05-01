@@ -67,7 +67,10 @@ public class Execution {
             case BIT:
                 switch (op.getType()) {
                     case BCF:
+                        bcf(op, reg);
+                        break;
                     case BSF:
+                        bsf(op, reg);
                     case BTFSC:
                     case BTFSS:
                 }
@@ -263,9 +266,9 @@ public class Execution {
     }
 
     void swapf(Operation op, Register reg) {
-        int lowerNibbles = calcLowerNibbles(op.opCode) << 4;
-        int upperNibbles = calcUpperNibbles(op.opCode) >> 4;
-        int toCalc = lowerNibbles & upperNibbles;
+        int lowerNibbles = (calcLowerNibbles(op.opCode) << 4) & 0b1111_11111;
+        int upperNibbles = (calcUpperNibbles(op.opCode) >> 4) & 0b1111_11111;
+        int toCalc = (lowerNibbles & upperNibbles) & 0b1111_1111;
         saveToRegister(op, reg, toCalc);
     }
 
@@ -277,12 +280,18 @@ public class Execution {
 
     //Implementation for Bit Operations
 
-    void bcf(int opCode, Register reg) {
-        //TODO implement
+    void bcf(Operation op, Register reg) {
+        int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int mask = calcMaskToUnsetBit(op.getBitAddress());
+        fromFileReg = fromFileReg & mask;
+        reg.writeToFileRegister(op, fromFileReg);
     }
 
-    void bsf(int opCode, Register reg) {
-        //TODO implement
+    void bsf(Operation op, Register reg) {
+        int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int mask = calcMaskToSetBit(op.getBitAddress());
+        fromFileReg = fromFileReg | mask;
+        reg.writeToFileRegister(op, fromFileReg);
     }
 
     //Implementations for Control Operations
@@ -333,4 +342,65 @@ public class Execution {
         }
     }
 
+    int calcMaskToUnsetBit(int bitAdress) {
+        int mask = 0;
+        switch (bitAdress) {
+            case 0:
+                mask = 0b1111_1110;
+                break;
+            case 1:
+                mask = 0b1111_1101;
+                break;
+            case 2:
+                mask = 0b1111_1011;
+                break;
+            case 3:
+                mask = 0b1111_0111;
+                break;
+            case 4:
+                mask = 0b1110_1111;
+                break;
+            case 5:
+                mask = 0b1101_1111;
+                break;
+            case 6:
+                mask = 0b1011_1111;
+                break;
+            case 7:
+                mask = 0b0111_1111;
+                break;
+        }
+        return mask;
+    }
+
+    int calcMaskToSetBit(int bitAdress) {
+        int mask = 0;
+        switch (bitAdress) {
+            case 0:
+                mask = 0b0000_0001;
+                break;
+            case 1:
+                mask = 0b0000_0010;
+                break;
+            case 2:
+                mask = 0b0000_0100;
+                break;
+            case 3:
+                mask = 0b0000_1000;
+                break;
+            case 4:
+                mask = 0b0001_0000;
+                break;
+            case 5:
+                mask = 0b0010_0000;
+                break;
+            case 6:
+                mask = 0b0100_0000;
+                break;
+            case 7:
+                mask = 0b1000_0000;
+                break;
+        }
+        return mask;
+    }
 }
