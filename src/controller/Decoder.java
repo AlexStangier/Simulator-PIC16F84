@@ -104,7 +104,7 @@ public class Decoder {
     void handleByte(int opCode, Operation op) {
 
         determineDestinationBit(opCode, op);
-        assignBitAddress(opCode, op);
+        assignByteAddress(opCode, op);
 
         switch (byteMask(opCode)) {
             case 0x0700:
@@ -182,7 +182,6 @@ public class Decoder {
     void handleBit(int opCode, Operation op) {
 
         assignBitAddress(opCode, op);
-        assignBitAddress(opCode, op);
 
         switch (bitMask(opCode)) {
             case 0x1000:
@@ -222,6 +221,7 @@ public class Decoder {
                 break;
             case 0x3000:
                 op.setType(OperationType.MOVLW);
+                op.setDestinationBit(1);
                 break;
             case 0x3400:
                 op.setType(OperationType.RETLW);
@@ -325,8 +325,13 @@ public class Decoder {
      * @param op     Operation Object from which the Bit Address is determined from
      */
     void assignBitAddress(int opCode, Operation op) {
-        int toCheck = opCode & 0x380;
+        int toCheck = opCode & 0b00_0011_1000_0000;
         op.setBitAddress(toCheck);
+    }
+
+    private void assignByteAddress(int opCode, Operation op) {
+        int toCheck = opCode & 0b00_0000_0111_1111;
+        op.setFileAddress(toCheck);
     }
 
     /**

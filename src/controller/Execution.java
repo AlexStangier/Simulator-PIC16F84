@@ -169,9 +169,9 @@ public class Execution {
     //Implementation for Byte Operations
 
     void addwf(Operation op, Register reg) {
-        int address = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int contentWReg = reg.getWorking_Register();
-        int toCalc = (contentWReg + address);
+        int toCalc = (contentWReg + contentFReg);
         saveToRegister(op, reg, toCalc);
     }
 
@@ -193,13 +193,15 @@ public class Execution {
     }
 
     void comf(Operation op, Register reg) {
-        int toCalc = calcComplement(reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit()));
-        saveToRegister(op, reg, toCalc);
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int toSave = (~toCalc) & 0xFF;
+        saveToRegister(op, reg, toSave);
     }
 
     void decf(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc--;
+        reg.checkForStatusFlags(toCalc);
         saveToRegister(op, reg, toCalc);
     }
 
@@ -215,6 +217,7 @@ public class Execution {
     void incf(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc++;
+        reg.checkForStatusFlags(toCalc);
         saveToRegister(op, reg, toCalc);
     }
 
@@ -266,10 +269,11 @@ public class Execution {
     }
 
     void swapf(Operation op, Register reg) {
-        int lowerNibbles = (calcLowerNibbles(op.opCode) << 4) & 0b1111_11111;
-        int upperNibbles = (calcUpperNibbles(op.opCode) >> 4) & 0b1111_11111;
-        int toCalc = (lowerNibbles & upperNibbles) & 0b1111_1111;
-        saveToRegister(op, reg, toCalc);
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int lowerNibble = ((toCalc & 0b0000_1111) << 4) & 0b1111_0000;
+        int upperNibble = ((toCalc & 0b1111_0000) >> 4) & 0b0000_1111;
+        int toSave = (lowerNibble + upperNibble) & 0b1111_1111;
+        saveToRegister(op, reg, toSave);
     }
 
     void xorwf(Operation op, Register reg) {
@@ -312,11 +316,6 @@ public class Execution {
         reg.setStack_Register(reg, returnTo);
     }
 
-
-    int calcComplement(int i) {
-        int ones = (Integer.highestOneBit(i) << 1) - 1;
-        return (i ^ ones) + 1;
-    }
 
     int calcLowerNibbles(int opCode) {
         int mask = 0b00_0000_0000_1111;

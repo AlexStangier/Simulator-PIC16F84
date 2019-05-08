@@ -131,7 +131,7 @@ class ExecutionTest extends Execution {
     @Test
     void comf1() {
         comf(op, reg);
-        assertEquals(calcComplement(fileReg), reg.getWorking_Register());
+        assertEquals(0x7D & 0xFF, reg.getWorking_Register());
     }
 
     @Test
@@ -173,9 +173,8 @@ class ExecutionTest extends Execution {
 
     @Test
     void swapf1() {
-        op.setOpCode(0b1111_0000);
         swapf(op, reg);
-        assertEquals(0b0000_1111, reg.getWorking_Register());
+        assertEquals(0x28, reg.getWorking_Register());
     }
 
     @Test
@@ -208,5 +207,10 @@ class ExecutionTest extends Execution {
         op.setBitAddress(4);
         bsf(op, reg);
         assertEquals(0x92, reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit()));
+    }
+
+    @Test
+    void decr2() {
+
     }
 }

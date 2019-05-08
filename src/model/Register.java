@@ -35,12 +35,6 @@ public class Register {
     //Initialization of the Stack Register
     static int[] stack_Register = new int[8];
 
-    //Initialization of the Indirect Register Bank 0
-    static int indirect_Register_Bank0 = 0;
-
-    //Initialization of the Indirect Register Bank 1
-    static int indirect_Regsiter_Bank1 = 0;
-
 
     /**
      * Sets all Registers to null
@@ -192,12 +186,12 @@ public class Register {
     }
 
     public void writeToFileRegister(Operation op, int toStore) {
-
-        if ((op.getFileAddress() % 128) < 0x0C && (op.getFileAddress() % 128) >= 0x00) {
+        int adress = op.getFileAddress();
+        if ((adress % 128) < 0x0C && (adress % 128) >= 0x00) {
             if (op.getDestinationBit() == 0) {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
-                        indirect_Register_Bank0 = toStore;
+                        ram_Bank0[0] = toStore;
                         break;
                     case 0x1:             //TMR0
                         break;
@@ -206,7 +200,7 @@ public class Register {
                     case 0x03:            //Status
                         break;
                     case 0x04:            //File Save Register
-                        file_Save_Register_Bank0 = toStore;
+                        ram_Bank0[4] = toStore;
                         break;
                     case 0x05:            //PORT A
                         break;
@@ -218,9 +212,9 @@ public class Register {
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
-                switch (op.getFileAddress() % 128) {
+                switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
-                        indirect_Regsiter_Bank1 = toStore;
+                        ram_Bank1[0] = toStore;
                         break;
                     case 0x01:            //TMR0
                         break;
@@ -229,7 +223,7 @@ public class Register {
                     case 0x03:            //Status
                         break;
                     case 0x04:            //File Save Register
-                        file_Save_Register_Bank1 = toStore;
+                        ram_Bank1[4] = toStore;
                         break;
                     case 0x05:            //TRIS A
                         break;
@@ -241,23 +235,21 @@ public class Register {
                         break;
                 }
             }
-        } else if ((op.getFileAddress() % 128) >= 0x0C && (op.getFileAddress() % 128 <= 0x80)) {
-            if (op.getDestinationBit() == 0) {
-                ram_Bank0[op.getFileAddress() % 128] = toStore;
-            } else {
-                ram_Bank1[op.getFileAddress() % 128] = toStore;
-            }
+        } else if ((adress <= 0x80) && ((adress % 128) >= 0x0C)) {
+            ram_Bank0[adress % 128] = toStore;
+            ram_Bank1[adress % 128] = toStore;
+
         }
     }
 
-    public int getFromFileRegister(int address, int destinationBit) {
+    public int getFromFileRegister(int adress, int destinationBit) {
         int toReturn = 0;
         switch (destinationBit) {
             case 0:
-                toReturn = ram_Bank0[address % 128];
+                toReturn = ram_Bank0[adress % 128];
                 break;
             case 1:
-                toReturn = ram_Bank1[address % 128];
+                toReturn = ram_Bank1[adress % 128];
                 break;
         }
         return toReturn;
