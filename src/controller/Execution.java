@@ -45,7 +45,7 @@ public class Execution {
                         movwf(op, reg);
                         break;
                     case NOP:
-                        nop();
+                        nop(reg);
                         break;
                     case RLF:
                         rlf(op, reg);
@@ -149,7 +149,8 @@ public class Execution {
 
     void retlw(int literal, Register reg) {
         reg.setWorking_Register(literal);
-        reg.setProgramm_Counter(reg.getStack_Register(0));
+        int toReturn = reg.pop();
+        reg.setProgramm_Counter(toReturn);
     }
 
 
@@ -208,8 +209,8 @@ public class Execution {
     void decfsz(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc--;
-        if (toCalc <= 0) {
-            nop();
+        if (toCalc == 0) {
+            nop(reg);
         }
         saveToRegister(op, reg, toCalc);
     }
@@ -224,8 +225,8 @@ public class Execution {
     void incfsz(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc++;
-        if (toCalc <= 0) {
-            nop();
+        if (toCalc == 0) {
+            nop(reg);
         }
         saveToRegister(op, reg, toCalc);
     }
@@ -244,21 +245,30 @@ public class Execution {
         reg.writeToFileRegister(op, reg.getWorking_Register());
     }
 
-    void nop() {
+    void nop(Register reg) {
 
     }
 
     void rlf(Operation op, Register reg) {
-        int mask = 0b1111_1111;
         int toRotate = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        toRotate = (toRotate << 1) & mask;
+        toRotate = toRotate << 1;
+        if (toRotate > 255) {
+            reg.setCarryFlag();
+            toRotate -= 256;
+
+        }
+        if (reg.getStatus_Register(1) == 1) {
+            toRotate += 1;
+        }
         saveToRegister(op, reg, toRotate);
-        reg.setCarryFlag();
     }
 
     void rrf(Operation op, Register reg) {
         int mask = 0b1111_1111;
         int toRotate = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        if (reg.getStatus_Register(1) == 1) {
+            toRotate += 128;
+        }
         toRotate = (toRotate >> 1) & mask;
         saveToRegister(op, reg, toRotate);
     }
@@ -298,35 +308,33 @@ public class Execution {
         reg.writeToFileRegister(op, fromFileReg);
     }
 
+    void btfsc(Operation op, Register reg) {
+        int register = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int bitMask = calcMaskToSetBit(op.getBitAddress());
+        if ((register & bitMask) > 0) {
+            reg.setProgramm_Counter(reg.getProgramm_Counter() + 1);
+        } else {
+            nop(reg);
+        }
+    }
+
     //Implementations for Control Operations
 
     void gotoCommand(Operation op, Register reg) {
         int newPCL = op.getFileAddress();
-        reg.setProgramm_Counter(newPCL - 1);
+        reg.setProgramm_Counter(newPCL - 1);                //-1
     }
 
     void call(Operation op, Register reg) {
-        reg.push(op.getFileAddress(), reg);
+        int adress = op.getFileAddress();
         reg.push(reg.getProgramm_Counter() + 1, reg);
-        reg.incrementStackPointer();                                                            //TODO check if necessary
+        reg.setProgramm_Counter(adress - 1);                    //-1
+
     }
 
     void returnCommand(Operation op, Register reg) {
         int returnTo = reg.pop();
-        reg.setStack_Register(reg, returnTo);
-    }
-
-
-    int calcLowerNibbles(int opCode) {
-        int mask = 0b00_0000_0000_1111;
-        int toReturn = opCode & mask;
-        return toReturn;
-    }
-
-    int calcUpperNibbles(int opCode) {
-        int mask = 0b00_0000_1111_0000;
-        int toReturn = opCode & mask;
-        return toReturn;
+        reg.setProgramm_Counter(returnTo + 1);
     }
 
     void saveToRegister(Operation op, Register reg, int toCalc) {

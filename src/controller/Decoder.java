@@ -109,66 +109,85 @@ public class Decoder {
         switch (byteMask(opCode)) {
             case 0x0700:
                 op.setType(OperationType.ADDWF);
+                op.setCycles(1);
                 break;
             case 0x0500:
                 op.setType(OperationType.ANDWF);
+                op.setCycles(1);
                 break;
             case 0x0100:
                 if (op.destinationBit == 1) {
                     op.setType(OperationType.CLRF);
+                    op.setCycles(1);
                 } else if (op.destinationBit == 0) {
                     op.setType(OperationType.CLRW);
+                    op.setCycles(1);
                 }
                 break;
             case 0x0900:
                 op.setType(OperationType.COMF);
+                op.setCycles(1);
                 break;
             case 0x300:
                 op.setType(OperationType.DECF);
+                op.setCycles(1);
                 break;
             case 0x0B00:
                 op.setType(OperationType.DECFSZ);
+                op.setCycles(2);
                 break;
             case 0x0A00:
                 op.setType(OperationType.INCF);
+                op.setCycles(1);
                 break;
             case 0x0F00:
                 op.setType(OperationType.INCFSZ);
+                op.setCycles(2);
                 break;
             case 0x0400:
                 op.setType(OperationType.IORWF);
+                op.setCycles(1);
                 break;
             case 0x0800:
                 op.setType(OperationType.MOVF);
+                op.setCycles(1);
                 break;
             case 0x0080:
                 op.setType(OperationType.MOVWF);
                 op.setDestinationBit(1);
+                op.setCycles(1);
                 break;
             case 0x0000:
                 op.setType(OperationType.NOP);
                 op.setDestinationBit(0);
+                op.setCycles(1);
                 break;
             case 0x0D00:
                 op.setType(OperationType.RLF);
+                op.setCycles(1);
                 break;
             case 0x0C00:
                 op.setType(OperationType.RRF);
+                op.setCycles(1);
                 break;
             case 0x0200:
                 op.setType(OperationType.SUBWF);
+                op.setCycles(1);
                 break;
             case 0x0E00:
                 op.setType(OperationType.SWAPF);
+                op.setCycles(1);
                 break;
             case 0x0600:
                 op.setType(OperationType.XORWF);
+                op.setCycles(1);
                 break;
         }
 
         if ((opCode & 0b00_0000_1000_0000) == 0x80 && op.getType().equals(OperationType.NOP)) {
             op.setType(OperationType.MOVWF);
             op.setDestinationBit(1);
+            op.setCycles(1);
         }
 
     }
@@ -182,19 +201,24 @@ public class Decoder {
     void handleBit(int opCode, Operation op) {
 
         assignBitAddress(opCode, op);
+        assignByteAddress(opCode, op);
 
         switch (bitMask(opCode)) {
             case 0x1000:
                 op.setType(OperationType.BCF);
+                op.setCycles(1);
                 break;
             case 0x1400:
                 op.setType(OperationType.BSF);
+                op.setCycles(1);
                 break;
             case 0x1800:
                 op.setType(OperationType.BTFSC);
+                op.setCycles(2);
                 break;
             case 0x1C00:
                 op.setType(OperationType.BTFSS);
+                op.setCycles(2);
                 break;
         }
     }
@@ -212,25 +236,32 @@ public class Decoder {
         switch (literalMask(opCode)) {
             case 0x3E00:
                 op.setType(OperationType.ADDLW);
+                op.setCycles(1);
                 break;
             case 0x3900:
                 op.setType(OperationType.ANDLW);
+                op.setCycles(1);
                 break;
             case 0x3800:
                 op.setType(OperationType.IORLW);
+                op.setCycles(1);
                 break;
             case 0x3000:
                 op.setType(OperationType.MOVLW);
+                op.setCycles(1);
                 op.setDestinationBit(1);
                 break;
             case 0x3400:
                 op.setType(OperationType.RETLW);
+                op.setCycles(2);
                 break;
             case 0x3C00:
                 op.setType(OperationType.SUBLW);
+                op.setCycles(1);
                 break;
             case 0x3A00:
                 op.setType(OperationType.XORLW);
+                op.setCycles(1);
                 break;
         }
     }
@@ -248,15 +279,19 @@ public class Decoder {
         switch (opCode & 0b00_0000_1111_1111) {
             case 0x0008:
                 op.setType(OperationType.RETURN);
+                op.setCycles(2);
                 break;
             case 0x0009:
                 op.setType(OperationType.RETFIE);
+                op.setCycles(2);
                 break;
             case 0x0063:
                 op.setType(OperationType.SLEEP);
+                op.setCycles(1);
                 break;
             case 0x0064:
                 op.setType(OperationType.CLRWDT);
+                op.setCycles(1);
                 break;
         }
 
@@ -268,9 +303,12 @@ public class Decoder {
         switch (controlMask(opCode)) {
             case 0x2800:
                 op.setType(OperationType.GOTO);
+                op.setCycles(2);
                 break;
             case 0x2000:
                 op.setType(OperationType.CALL);
+
+                op.setCycles(2);
                 break;
         }
     }
@@ -300,6 +338,7 @@ public class Decoder {
 
 
     }
+
 
     /**
      * Is used to determine if the destination Bit is set or unset

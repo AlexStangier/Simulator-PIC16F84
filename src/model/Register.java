@@ -35,6 +35,9 @@ public class Register {
     //Initialization of the Stack Register
     static int[] stack_Register = new int[8];
 
+    //Initialization of the Interrupt Control Register
+    boolean tmr0 = false;
+
 
     /**
      * Sets all Registers to null
@@ -116,7 +119,7 @@ public class Register {
         setStack(reg, pcl);
     }
 
-    public int getStack_Register(int index) {
+    public int getFromStack_Register(int index) {
         return stack_Register[index];
     }
 
@@ -127,6 +130,7 @@ public class Register {
 
     public void push(int pcl, Register reg) {
         stack_Register[reg.getStackpointer()] = pcl;
+        incrementStackPointer();
     }
 
     public int pop() {
@@ -174,7 +178,7 @@ public class Register {
     public int checkForCarryFlag(int result) {
         if (result < 0 || result > 255) {
             setCarryFlag();
-            return result % 255;
+            return result % 256;
         } else {
             return result;
         }
@@ -194,21 +198,28 @@ public class Register {
                         ram_Bank0[0] = toStore;
                         break;
                     case 0x1:             //TMR0
+                        ram_Bank0[1] = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
+                        ram_Bank0[2] = toStore;
                         break;
                     case 0x03:            //Status
+                        ram_Bank0[3] = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
                         break;
                     case 0x05:            //PORT A
+                        ram_Bank0[5] = toStore;
                         break;
                     case 0x06:            //PORT B
+                        ram_Bank0[6] = toStore;
                         break;
                     case 0x0A:            //Program Counter Latch High
+                        ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank0[11] = toStore;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
@@ -217,21 +228,28 @@ public class Register {
                         ram_Bank1[0] = toStore;
                         break;
                     case 0x01:            //TMR0
+                        ram_Bank1[1] = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
+                        ram_Bank1[2] = toStore;
                         break;
                     case 0x03:            //Status
+                        ram_Bank1[3] = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
                         break;
                     case 0x05:            //TRIS A
+                        ram_Bank1[5] = toStore;
                         break;
                     case 0x06:            //TRIS B
+                        ram_Bank1[6] = toStore;
                         break;
                     case 0x0A:            //Program Counter Latch High
+                        ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank1[11] = toStore;
                         break;
                 }
             }
@@ -253,6 +271,29 @@ public class Register {
                 break;
         }
         return toReturn;
+    }
+
+    public void printRegister(int[] arr, int width) {
+        int i = 0;
+        for (i = 1; i < arr.length; i++) {
+            System.out.print(arr[i - 1] + "    ");
+            if (i % width == 0) {
+                System.out.print("\n");
+            }
+        }
+        System.out.print(arr[i - 1]);
+    }
+
+    public static int[] getRam_Bank0() {
+        return ram_Bank0;
+    }
+
+    public boolean checkForInterrupt(){
+        if(tmr0 = false){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
 
