@@ -35,8 +35,11 @@ public class Register {
     //Initialization of the Stack Register
     static int[] stack_Register = new int[8];
 
-    //Initialization of the Interrupt Control Register
-    boolean tmr0 = false;
+    //Initialization of the Timerregister TMR0
+    static byte tmr0 = 0;
+
+    //Initialization of INTCON Register
+    static int[] intcon = new int[8];                                                             //[0]RB Port Change [1]RBO interrupt [2]TMR0 overflow [3]RBIE [4]INTE [5]T0IE [6]EEIE [7]GIE
 
 
     /**
@@ -50,6 +53,12 @@ public class Register {
         file_Save_Register_Bank1 = 0;
         working_Register = 0;
 
+        //Enable RB0 Interrupt
+        intcon[7] = 0;
+        intcon[5] = 0;
+        intcon[4] = 0;
+        intcon[3] = 0;
+
         for (int i = 0; i < stack_Register.length; i++) {
             stack_Register[i] = 0;
         }
@@ -59,30 +68,38 @@ public class Register {
         }
     }
 
-    public void incrementStackPointer() {
+    /**
+     * Stackoperations
+     **/
 
-        if (Register.stackpointer == 7) {
-            Register.stackpointer = 0;
-        } else if (Register.stackpointer == -1) {
-            Register.stackpointer = 0;
+    public static void incrementStackPointer() {
+
+        if (stackpointer == 7) {
+            stackpointer = 0;
+        } else if (stackpointer == -1) {
+            stackpointer = 0;
         } else {
-            Register.stackpointer++;
+            stackpointer++;
         }
     }
 
 
     public void decrementStackPointer() {
-        if (Register.stackpointer == 0) {
-            Register.stackpointer = 7;
-        } else if (Register.stackpointer == -1) {
-            Register.stackpointer = 0;
+        if (stackpointer == 0) {
+            stackpointer = 7;
+        } else if (stackpointer == -1) {
+            stackpointer = 0;
         } else {
-            Register.stackpointer--;
+            stackpointer--;
 
         }
 
     }
 
+
+    /**
+     * PCL Operations
+     **/
 
     public void setProgramm_Counter(int counter) {
         programm_Counter = counter;
@@ -105,8 +122,13 @@ public class Register {
         return stack_Register;
     }
 
+    /**
+     * Working register operations
+     **/
+
     public void setWorking_Register(int working_Register) {
-        Register.working_Register = working_Register;
+
+        Register.working_Register = working_Register % 256;
     }
 
 
@@ -128,8 +150,12 @@ public class Register {
     }
 
 
-    public void push(int pcl, Register reg) {
-        stack_Register[reg.getStackpointer()] = pcl;
+    /**
+     * STACK Operations
+     **/
+
+    public void push(int pcl) {
+        stack_Register[stackpointer] = pcl;
         incrementStackPointer();
     }
 
@@ -153,6 +179,10 @@ public class Register {
     }
 
 
+    /**
+     * Flag Operations
+     **/
+
     public void setCarryFlag() {
         status_Register[1] = 1;
     }
@@ -175,10 +205,14 @@ public class Register {
         }
     }
 
+    public static void setStatus_Register(int i, int value) {
+        status_Register[i] = (byte) value;
+    }
+
     public int checkForCarryFlag(int result) {
         if (result < 0 || result > 255) {
             setCarryFlag();
-            return result % 256;
+            return (result % 256);
         } else {
             return result;
         }
@@ -189,19 +223,23 @@ public class Register {
         return checkForCarryFlag(result);
     }
 
+    /**
+     * File IO Mechanics
+     **/
+
     public void writeToFileRegister(Operation op, int toStore) {
         int adress = op.getFileAddress();
         if ((adress % 128) < 0x0C && (adress % 128) >= 0x00) {
             if (op.getDestinationBit() == 0) {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
-                        ram_Bank0[0] = toStore;
+                        ram_Bank0[0] = ram_Bank1[4];
                         break;
                     case 0x1:             //TMR0
-                        ram_Bank0[1] = toStore;
+                        ram_Bank0[1] = tmr0;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank0[2] = toStore;
+                        ram_Bank0[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
                         ram_Bank0[3] = toStore;
@@ -219,19 +257,18 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank0[11] = toStore;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
-                        ram_Bank1[0] = toStore;
+                        ram_Bank1[0] = ram_Bank1[4];
                         break;
                     case 0x01:            //TMR0
-                        ram_Bank1[1] = toStore;
+                        ram_Bank1[1] = tmr0;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank1[2] = toStore;
+                        ram_Bank1[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
                         ram_Bank1[3] = toStore;
@@ -249,7 +286,6 @@ public class Register {
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank1[11] = toStore;
                         break;
                 }
             }
@@ -273,6 +309,10 @@ public class Register {
         return toReturn;
     }
 
+    /**
+     * Print methods for File Register
+     **/
+
     public void printRegister(int[] arr, int width) {
         int i = 0;
         for (i = 1; i < arr.length; i++) {
@@ -284,16 +324,123 @@ public class Register {
         System.out.print(arr[i - 1]);
     }
 
+    public static int[][] buildArray(int[] array, int ySize, int xSize) {
+        int[][] arr = new int[ySize][xSize];
+        for (int i = 0; i < array.length; i++) {
+            arr[i % ySize][i / ySize] = array[i];
+        }
+        return arr;
+    }
+
+    public static Integer[][] buildInteger(int[] array, int ySize, int xSize) {
+        Integer[][] arr = new Integer[xSize][ySize];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i % ySize][i / ySize] = array[i];
+
+        }
+        return arr;
+    }
+
+
+    public static void printTwoDimensionalArray(int[][] a) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                System.out.printf(String.format("%02Xh ", a[i][j]));
+            }
+            System.out.println();
+        }
+    }
+
     public static int[] getRam_Bank0() {
         return ram_Bank0;
     }
 
-    public boolean checkForInterrupt(){
-        if(tmr0 = false){
-            return true;
-        }else{
-            return false;
+    /**
+     * TMR0 Interrupt
+     **/
+
+    public void interrupt() {
+        push(programm_Counter);
+        //Set GIE
+        intcon[7] = 1;
+    }
+
+    public static byte getTmr0() {
+        return tmr0;
+    }
+
+    public static void setTmr0(byte tmr0) {
+        Register.tmr0 = tmr0;
+    }
+
+    public void incrementTMR0(Operation op, Register reg) {
+        int cycles = op.getCycles();
+        setTmr0((byte) (getTmr0() + cycles));
+        checkForTMR0Overflow(reg);
+    }
+
+    private void checkForTMR0Overflow(Register reg) {
+        if (tmr0 > 255) {
+            //Check for Timer enable Bit TOIE
+            if (intcon[5] == 1) {
+                intcon[2] = 1;
+                setTmr0((byte) 0);
+                System.out.println("TMR0 Interrupt");           //TODO Interrupt handling
+                interrupt();
+            }
+        }
+    }
+
+    /**
+     * RB Interrupts
+     **/
+
+    public void setGIE() {
+        if (intcon[7] == 0) {
+            intcon[7] = 1;
+        } else {
+            intcon[7] = 0;
+        }
+    }
+
+    public void setINTE() {
+        if (intcon[4] == 0) {
+            intcon[4] = 1;
+        } else {
+            intcon[4] = 0;
+        }
+    }
+
+    public void setTOIE() {
+        if (intcon[5] == 0) {
+            intcon[5] = 1;
+        } else {
+            intcon[5] = 0;
+        }
+    }
+
+    public void setRBIE() {
+        if (intcon[3] == 0) {
+            intcon[3] = 1;
+        } else {
+            intcon[3] = 0;
+        }
+    }
+
+    public void rb0Interrupt() {
+        if (intcon[3] == 1) {
+            intcon[1] = 1;
+            System.out.println("RB0 Interrupt");            //TODO Interrupt handling
+            interrupt();
+        }
+    }
+
+    public void rbInterrupt() {
+        if (intcon[0] == 1) {
+            System.out.println("RB4:7 Interrupt");
+            interrupt();
         }
     }
 }
+
 

@@ -71,8 +71,13 @@ public class Execution {
                         break;
                     case BSF:
                         bsf(op, reg);
+                        break;
                     case BTFSC:
+                        btfsc(op, reg);
+                        break;
                     case BTFSS:
+                        btfss(op, reg);
+                        break;
                 }
             case LITERAL:
                 switch (op.getType()) {
@@ -208,10 +213,10 @@ public class Execution {
 
     void decfsz(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        toCalc--;
         if (toCalc == 0) {
             nop(reg);
         }
+        toCalc--;
         saveToRegister(op, reg, toCalc);
     }
 
@@ -224,10 +229,10 @@ public class Execution {
 
     void incfsz(Operation op, Register reg) {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        toCalc++;
         if (toCalc == 0) {
             nop(reg);
         }
+        toCalc++;
         saveToRegister(op, reg, toCalc);
     }
 
@@ -251,25 +256,37 @@ public class Execution {
 
     void rlf(Operation op, Register reg) {
         int toRotate = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        toRotate = toRotate << 1;
-        if (toRotate > 255) {
-            reg.setCarryFlag();
-            toRotate -= 256;
+        int carryBeforeOperation = reg.getStatus_Register(1);
+        int checkBit7 = toRotate & 0b1000_0000;
 
-        }
-        if (reg.getStatus_Register(1) == 1) {
+        toRotate = toRotate << 1;
+        //Check for C Flag
+        if (carryBeforeOperation == 1) {
             toRotate += 1;
+            reg.setStatus_Register(1, 0);
         }
+
+        if (checkBit7 == 128) {
+            reg.setCarryFlag();
+        }
+
         saveToRegister(op, reg, toRotate);
     }
 
     void rrf(Operation op, Register reg) {
-        int mask = 0b1111_1111;
         int toRotate = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        if (reg.getStatus_Register(1) == 1) {
+        int checkBit0 = toRotate & 0b0000_0001;
+        int carryBeforeOperation = reg.getStatus_Register(1);
+
+        toRotate = toRotate >> 1;
+        if (carryBeforeOperation == 1) {
             toRotate += 128;
+            reg.setStatus_Register(1, 0);
         }
-        toRotate = (toRotate >> 1) & mask;
+
+        if (checkBit0 == 1) {
+            reg.setCarryFlag();
+        }
         saveToRegister(op, reg, toRotate);
     }
 
@@ -296,22 +313,32 @@ public class Execution {
 
     void bcf(Operation op, Register reg) {
         int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        int mask = calcMaskToUnsetBit(op.getBitAddress());
+        int mask = calcMaskToUnsetBit(op.getBitAddress() >> 7);
         fromFileReg = fromFileReg & mask;
         reg.writeToFileRegister(op, fromFileReg);
     }
 
     void bsf(Operation op, Register reg) {
         int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        int mask = calcMaskToSetBit(op.getBitAddress());
+        int mask = calcMaskToSetBit(op.getBitAddress() >> 7);
         fromFileReg = fromFileReg | mask;
         reg.writeToFileRegister(op, fromFileReg);
     }
 
     void btfsc(Operation op, Register reg) {
         int register = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        int bitMask = calcMaskToSetBit(op.getBitAddress());
+        int bitMask = calcMaskToSetBit(op.getBitAddress() >> 7);
         if ((register & bitMask) > 0) {
+            reg.setProgramm_Counter(reg.getProgramm_Counter() + 1);
+        } else {
+            nop(reg);
+        }
+    }
+
+    void btfss(Operation op, Register reg) {
+        int register = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int bitMask = calcMaskToSetBit(op.getBitAddress() >> 7);
+        if ((register & bitMask) == 0) {
             reg.setProgramm_Counter(reg.getProgramm_Counter() + 1);
         } else {
             nop(reg);
@@ -327,7 +354,7 @@ public class Execution {
 
     void call(Operation op, Register reg) {
         int adress = op.getFileAddress();
-        reg.push(reg.getProgramm_Counter() + 1, reg);
+        reg.push(reg.getProgramm_Counter() + 1);
         reg.setProgramm_Counter(adress - 1);                    //-1
 
     }
