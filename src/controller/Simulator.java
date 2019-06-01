@@ -43,9 +43,12 @@ public class Simulator {
         setPath(lst);
         int[] opCodes = parser.toParse(path);
 
-        register.resetRegisters();
+        Operation[] opArr = new Operation[opCodes.length];
 
-        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2         ZFLAG        CFLAG");
+        register.resetRegisters();
+        int runtime = 0;
+
+        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2       FSR     F10     F11        ZFLAG        CFLAG");
 
         for (int s = 0; s < opCodes.length; s++) {
             Operation op = new Operation();
@@ -55,31 +58,37 @@ public class Simulator {
             decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
             exec.executeOperation(op, register);
+            opArr[s] = op;
+
             register.incrementProgrammCounter();
 
             System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
                     + op.type + "       " + String.format("0x%02X", op.literal) + "         " + op.destinationBit
                     + "          " + String.format("0x%02X", register.getWorking_Register()) + "        " +
                     String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
-                    + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " +
+                    + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
+                    + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
                     register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
 
             register.incrementTMR0(op, register);
-
         }
-        System.out.println("Total runtime: " + register.getTmr0() + " Cycles \n");
+        System.out.println("Total runtime: " + runtime + " Cycles \n");
         register.printTwoDimensionalArray(register.buildArray(register.getRam_Bank0(), 13, 10));
 
+        for (int s = 0; s < opArr.length; s++) {
+            System.out.println(s + " " + opArr[s].type + "    " + register.getProgramm_Counter());
+        }
     }
 
     public void startExecuting(int lst, int cycles) {
         setPath(lst);
         int[] opCodes = parser.toParse(path);
 
+
         register.resetRegisters();
         int runtime = 0;
 
-        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2         ZFLAG        CFLAG");
+        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2       FSR        ZFLAG        CFLAG");
 
         for (int s = 0; s < cycles; s++) {
             Operation op = new Operation();
@@ -90,14 +99,14 @@ public class Simulator {
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
             exec.executeOperation(op, register);
 
-
             register.incrementProgrammCounter();
 
             System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
                     + op.type + "       " + String.format("0x%02X", op.literal) + "         " + op.destinationBit
                     + "          " + String.format("0x%02X", register.getWorking_Register()) + "        " +
                     String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
-                    + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " +
+                    + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
+                    + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
                     register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
 
             register.incrementTMR0(op, register);
@@ -121,7 +130,7 @@ public class Simulator {
                 + "          " + String.format("0x%02X", register.getWorking_Register()) + "        " +
                 String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
                 + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " +
-                register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
+                String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        " + register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
 
         register.incrementTMR0(op, register);
     }

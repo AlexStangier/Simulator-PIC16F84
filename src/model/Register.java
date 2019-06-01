@@ -233,7 +233,7 @@ public class Register {
             if (op.getDestinationBit() == 0) {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
-                        ram_Bank0[0] = ram_Bank1[4];
+                        ram_Bank0[0] = toStore;
                         break;
                     case 0x1:             //TMR0
                         ram_Bank0[1] = tmr0;
@@ -262,7 +262,76 @@ public class Register {
             } else if (op.getDestinationBit() == 1) {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
-                        ram_Bank1[0] = ram_Bank1[4];
+                        ram_Bank1[0] = toStore;
+                        break;
+                    case 0x01:            //TMR0
+                        ram_Bank1[1] = tmr0;
+                        break;
+                    case 0x02:            //Program Counter Latch Low
+                        ram_Bank1[2] = programm_Counter;
+                        break;
+                    case 0x03:            //Status
+                        ram_Bank1[3] = toStore;
+                        break;
+                    case 0x04:            //File Save Register
+                        ram_Bank1[4] = toStore;
+                        break;
+                    case 0x05:            //TRIS A
+                        ram_Bank1[5] = toStore;
+                        break;
+                    case 0x06:            //TRIS B
+                        ram_Bank1[6] = toStore;
+                        break;
+                    case 0x0A:            //Program Counter Latch High
+                        ram_Bank1[10] = toStore;
+                        break;
+                    case 0x0B:            //INTCON
+                        break;
+                }
+            }
+        } else if ((adress <= 0x80) && ((adress % 128) >= 0x0C)) {
+            ram_Bank0[adress % 128] = toStore;
+            ram_Bank1[adress % 128] = toStore;
+
+        }
+    }
+
+    public void writeToFileRegister(Operation op, int adressToRegister, int toStore) {
+        int adress = adressToRegister;
+        if ((adress % 128) < 0x0C && (adress % 128) >= 0x00) {
+            if (op.getDestinationBit() == 0) {
+                switch (op.getFileAddress() % 128) {
+                    case 0x0:             //Indirect Addressing
+                        ram_Bank0[0] = toStore;
+                        break;
+                    case 0x1:             //TMR0
+                        ram_Bank0[1] = tmr0;
+                        break;
+                    case 0x02:            //Program Counter Latch Low
+                        ram_Bank0[2] = programm_Counter;
+                        break;
+                    case 0x03:            //Status
+                        ram_Bank0[3] = toStore;
+                        break;
+                    case 0x04:            //File Save Register
+                        ram_Bank0[4] = toStore;
+                        break;
+                    case 0x05:            //PORT A
+                        ram_Bank0[5] = toStore;
+                        break;
+                    case 0x06:            //PORT B
+                        ram_Bank0[6] = toStore;
+                        break;
+                    case 0x0A:            //Program Counter Latch High
+                        ram_Bank0[10] = toStore;
+                        break;
+                    case 0x0B:            //INTCON
+                        break;
+                }
+            } else if (op.getDestinationBit() == 1) {
+                switch (adress % 128) {
+                    case 0x00:            //Indirect Addressing
+                        ram_Bank1[0] = toStore;
                         break;
                     case 0x01:            //TMR0
                         ram_Bank1[1] = tmr0;

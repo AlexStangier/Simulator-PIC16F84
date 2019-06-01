@@ -4,6 +4,7 @@ import controller.Simulator;
 import model.Register;
 
 import javax.swing.*;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
@@ -35,13 +36,13 @@ public class SimulatorGUI {
     private JRadioButton RBIERadioButton;
     private JRadioButton TOIERadioButton;
     private JRadioButton GIERadioButton;
-    private int s = 0;
     private Simulator runningSimulation;
 
 
     public SimulatorGUI() {
 
         Register reg = new Register();
+        reg.resetRegisters();
         runningSimulation = new Simulator(reg);
         runningSimulation.setPath(6);
         runningSimulation.setOpCodes();
@@ -52,7 +53,9 @@ public class SimulatorGUI {
         fsrlabel.setText(String.valueOf(0));
         pcllabel.setText(String.valueOf(0));
 
-        fileregisterTable = updateFileRegisterTable(reg);
+
+        //LST
+
 
         //Start Button
         start.addActionListener(new ActionListener() {
@@ -62,7 +65,7 @@ public class SimulatorGUI {
                 runningSimulation.startExecuting(5);
                 root.updateUI();
                 updateSpecialRegister(reg);
-                fileregisterTable = updateFileRegisterTable(reg);
+
             }
         });
 
@@ -72,12 +75,8 @@ public class SimulatorGUI {
             public void actionPerformed(ActionEvent e) {
                 runningSimulation.executeStep();
                 updateSpecialRegister(reg);
-                fileregisterTable = updateFileRegisterTable(reg);
             }
         });
-
-
-        //LST View
 
 
         rb0.addActionListener(new ActionListener() {
@@ -149,7 +148,7 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.resetRegisters();
-                updateSpecialRegister(reg);
+
             }
         });
     }
@@ -162,21 +161,12 @@ public class SimulatorGUI {
         wreglabel.setText(String.valueOf(String.format("0x%02X", reg.getWorking_Register())));
 
         //FSR Display
-        fsrlabel.setText(String.valueOf(String.format("0x%02X", reg.getFromFileRegister(4, 0))));
+        fsrlabel.setText(String.valueOf(String.format("0x%02X", reg.getFromFileRegister(4, 1))));
 
         //PCL Label
         pcllabel.setText(String.valueOf(reg.getProgramm_Counter()));
     }
 
-    private JTable updateFileRegisterTable(Register reg) {
-        //FileRegister Table
-        Integer[][] data = reg.buildInteger(reg.getRam_Bank0(), 13, 10);
-        Object[] columnNames = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-        TableModel model = new DefaultTableModel(data, columnNames);
-        JTable fileReg = new JTable(model);
-
-        return fileReg;
-    }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Simulator-PIC16F84");

@@ -13,6 +13,7 @@ public class Parser {
     BufferedReader br;
     StringBuilder sb;
 
+
     /**
      * Is used to run all necessary methods to parse a text file into usable assembler commands
      *
