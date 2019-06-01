@@ -244,11 +244,12 @@ public class Execution {
             fileAdress = indirectAdress;
         }
         int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        toCalc--;
         if (toCalc == 0) {
             nop(reg);
             reg.setProgramm_Counter((reg.getProgramm_Counter()) + 1);
         }
-        toCalc--;
+
         saveToRegister(op, reg, toCalc);
     }
 
@@ -273,12 +274,13 @@ public class Execution {
             fileAdress = indirectAdress;
         }
         int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
-
-        if (toCalc == 0) {
+        toCalc++;
+        if (toCalc == 0 || toCalc == 256) {
+            toCalc = 0;
             nop(reg);
             reg.setProgramm_Counter((reg.getProgramm_Counter()) + 1);
         }
-        toCalc++;
+
         saveToRegister(op, reg, toCalc);
     }
 
@@ -325,6 +327,7 @@ public class Execution {
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
             fileAdress = indirectAdress;
+
         }
         int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
 
@@ -473,6 +476,18 @@ public class Execution {
                 break;
             case 1:
                 reg.writeToFileRegister(op, toCalc);
+                break;
+        }
+    }
+
+    private void saveToRegister(Operation op, Register reg, int toCalc, int indirectAdress) {
+        toCalc = reg.checkForStatusFlags(toCalc);
+        switch (op.getDestinationBit()) {
+            case 0:
+                reg.setWorking_Register(toCalc);
+                break;
+            case 1:
+                reg.writeToFileRegister(op, indirectAdress, toCalc);
                 break;
         }
     }
