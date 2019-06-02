@@ -36,7 +36,7 @@ public class Register {
     static int[] stack_Register = new int[8];
 
     //Initialization of the Timerregister TMR0
-    static byte tmr0 = 0;
+    static int tmr0 = 0;
 
     //Initialization of INTCON Register
     static int[] intcon = new int[8];                                                             //[0]RB Port Change [1]RBO interrupt [2]TMR0 overflow [3]RBIE [4]INTE [5]T0IE [6]EEIE [7]GIE
@@ -53,11 +53,16 @@ public class Register {
         file_Save_Register_Bank1 = 0;
         working_Register = 0;
 
-        //Enable RB0 Interrupt
         intcon[7] = 0;
         intcon[5] = 0;
         intcon[4] = 0;
         intcon[3] = 0;
+        intcon[2] = 0;
+        intcon[1] = 0;
+        intcon[0] = 0;
+
+        tmr0 = 0;
+
 
         for (int i = 0; i < stack_Register.length; i++) {
             stack_Register[i] = 0;
@@ -393,6 +398,16 @@ public class Register {
         System.out.print(arr[i - 1]);
     }
 
+    public static String[][] buildArrayFromFSR(int xSize, int ySize) {
+        String[][] arr = new String[xSize][ySize];
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[i].length; j++) {
+                arr[i][j] = String.format("0x%02X", ram_Bank1[j]);            //TODO FIX IT
+            }
+        }
+        return arr;
+    }
+
     public static int[][] buildArray(int[] array, int ySize, int xSize) {
         int[][] arr = new int[ySize][xSize];
         for (int i = 0; i < array.length; i++) {
@@ -424,9 +439,14 @@ public class Register {
         return ram_Bank0;
     }
 
+    public static int getIntcon(int i) {
+        return intcon[i];
+    }
+
     /**
      * TMR0 Interrupt
      **/
+
 
     public void interrupt() {
         push(programm_Counter);
@@ -434,17 +454,17 @@ public class Register {
         intcon[7] = 1;
     }
 
-    public static byte getTmr0() {
+    public static int getTmr0() {
         return tmr0;
     }
 
-    public static void setTmr0(byte tmr0) {
+    public static void setTmr0(int tmr0) {
         Register.tmr0 = tmr0;
     }
 
     public void incrementTMR0(Operation op, Register reg) {
         int cycles = op.getCycles();
-        setTmr0((byte) (getTmr0() + cycles));
+        setTmr0(getTmr0() + cycles);
         checkForTMR0Overflow(reg);
     }
 
@@ -453,9 +473,9 @@ public class Register {
             //Check for Timer enable Bit TOIE
             if (intcon[5] == 1) {
                 intcon[2] = 1;
-                setTmr0((byte) 0);
-                System.out.println("TMR0 Interrupt");           //TODO Interrupt handling
                 interrupt();
+                setGIE(1);
+                System.out.println("TMR0 Overflow");
             }
         }
     }
@@ -463,6 +483,10 @@ public class Register {
     /**
      * RB Interrupts
      **/
+
+    public void setGIE(int i) {
+        intcon[7] = i;
+    }
 
     public void setGIE() {
         if (intcon[7] == 0) {
@@ -472,11 +496,11 @@ public class Register {
         }
     }
 
-    public void setINTE() {
-        if (intcon[4] == 0) {
+    public void setRBPC() {
+        if (intcon[0] == 0) {
             intcon[4] = 1;
         } else {
-            intcon[4] = 0;
+            intcon[0] = 0;
         }
     }
 
@@ -497,17 +521,17 @@ public class Register {
     }
 
     public void rb0Interrupt() {
-        if (intcon[3] == 1) {
-            intcon[1] = 1;
-            System.out.println("RB0 Interrupt");            //TODO Interrupt handling
-            interrupt();
-        }
+        intcon[1] = 1;
+        interrupt();
+        setGIE(1);
+        System.out.println("RB0 Interrupt");
     }
 
     public void rbInterrupt() {
-        if (intcon[0] == 1) {
-            System.out.println("RB4:7 Interrupt");
+        if (intcon[3] == 1) {
             interrupt();
+            setGIE(1);
+            System.out.println("RB Port Change Interrupt");
         }
     }
 }

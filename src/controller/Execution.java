@@ -476,7 +476,6 @@ public class Execution {
                 break;
             case 1:
                 reg.writeToFileRegister(op, toCalc);
-                break;
         }
     }
 
