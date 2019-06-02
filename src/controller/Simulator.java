@@ -43,10 +43,8 @@ public class Simulator {
         setPath(lst);
         int[] opCodes = parser.toParse(path);
 
-        Operation[] opArr = new Operation[opCodes.length];
-
         register.resetRegisters();
-        int runtime = 0;
+
 
         System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2       FSR     F10     F11        ZFLAG        CFLAG");
 
@@ -58,8 +56,6 @@ public class Simulator {
             decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
             exec.executeOperation(op, register);
-            opArr[s] = op;
-
             register.incrementProgrammCounter();
 
             System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
@@ -72,12 +68,10 @@ public class Simulator {
 
             register.incrementTMR0(op, register);
         }
-        System.out.println("Total runtime: " + runtime + " Cycles \n");
+        System.out.println("Total runtime: " + register.getTmr0() + " Cycles \n");
         register.printTwoDimensionalArray(register.buildArray(register.getRam_Bank0(), 13, 10));
 
-        for (int s = 0; s < opArr.length; s++) {
-            System.out.println(s + " " + opArr[s].type + "    " + register.getProgramm_Counter());
-        }
+
     }
 
     public void startExecuting(int lst, int cycles) {
