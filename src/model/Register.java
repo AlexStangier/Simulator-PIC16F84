@@ -20,8 +20,8 @@ public class Register {
     //Initialization of the Working Register
     static int working_Register = 0;
 
-    //Initialization of the Status Register                                                       //Contains all Status flags Zero Flag[0] Carry Flag[1] Digit Carry Flag[2]
-    static byte[] status_Register = new byte[3];
+    //Initialization of the Status Register                                                       //Contains all Status flags: 0:C 1:DC 2:Z 3:PD 4:TO 5:RP0 6:RP1 7:IRP
+    static int[] status_Register = new int[8];
 
     ///Initialization of the File Select Register Bank 0                                          //contains pointer for indirect addressing
     static int file_Save_Register_Bank0 = 0;
@@ -179,7 +179,7 @@ public class Register {
     }
 
 
-    public static byte getStatus_Register(int index) {
+    public static int getStatus_Register(int index) {
         return status_Register[index];
     }
 
@@ -189,7 +189,11 @@ public class Register {
      **/
 
     public void setCarryFlag() {
-        status_Register[1] = 1;
+        status_Register[0] = 1;
+    }
+
+    public void setCarryFlag(int i) {
+        status_Register[0] = (byte) i;
     }
 
     public void setZeroFlag(Register reg) {
@@ -197,10 +201,10 @@ public class Register {
     }
 
     public static void setZeroFlag() {
-        status_Register[0] = 1;
+        status_Register[3] = 1;
     }
 
-    public byte getZeroFlag(Register reg) {
+    public int getZeroFlag(Register reg) {
         return reg.getStatus_Register(0);
     }
 
@@ -228,8 +232,6 @@ public class Register {
         return checkForCarryFlag(result);
     }
 
-    //TESTESTEST
-
     /**
      * File IO Mechanics
      **/
@@ -240,7 +242,8 @@ public class Register {
             if (op.getDestinationBit() == 0) {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
-                        ram_Bank0[0] = toStore;
+                        ram_Bank0[0] = 0;
+                        setCarryFlag(0);
                         break;
                     case 0x1:             //TMR0
                         ram_Bank0[1] = tmr0;
@@ -249,7 +252,7 @@ public class Register {
                         ram_Bank0[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = toStore;
+                        ram_Bank0[3] = status_Register[op.getBitAddress()];
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -269,7 +272,8 @@ public class Register {
             } else if (op.getDestinationBit() == 1) {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
-                        ram_Bank1[0] = toStore;
+                        ram_Bank1[0] = 0;
+                        setCarryFlag(0);
                         break;
                     case 0x01:            //TMR0
                         ram_Bank1[1] = tmr0;
@@ -278,7 +282,7 @@ public class Register {
                         ram_Bank1[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = toStore;
+                        ram_Bank1[3] = status_Register[op.getBitAddress()];
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
@@ -309,7 +313,7 @@ public class Register {
             if (op.getDestinationBit() == 0) {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
-                        ram_Bank0[0] = toStore;
+                        ram_Bank0[0] = 0;
                         break;
                     case 0x1:             //TMR0
                         ram_Bank0[1] = tmr0;
@@ -318,7 +322,7 @@ public class Register {
                         ram_Bank0[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = toStore;
+                        ram_Bank0[3] = status_Register[op.getBitAddress()];
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -338,7 +342,8 @@ public class Register {
             } else if (op.getDestinationBit() == 1) {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
-                        ram_Bank1[0] = toStore;
+                        ram_Bank1[0] = 0;
+                        setCarryFlag();
                         break;
                     case 0x01:            //TMR0
                         ram_Bank1[1] = tmr0;
@@ -347,7 +352,7 @@ public class Register {
                         ram_Bank1[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = toStore;
+                        ram_Bank1[3] = status_Register[op.getBitAddress()];
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
@@ -379,6 +384,12 @@ public class Register {
                 toReturn = ram_Bank0[adress % 128];
                 break;
             case 1:
+                switch (adress) {
+                    case 3:
+                }
+
+
+
                 toReturn = ram_Bank1[adress % 128];
                 break;
         }
