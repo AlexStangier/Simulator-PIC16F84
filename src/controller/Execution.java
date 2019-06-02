@@ -123,7 +123,9 @@ public class Execution {
 
     }
 
-    //Implementation for Literal Operations
+    /**
+     * Implementation for Literal Operations
+     **/
 
     void addlw(int literal, Register reg) {
         int wReg = reg.getWorking_Register();
@@ -173,16 +175,18 @@ public class Execution {
 
     }
 
-    //Implementation for Byte Operations
+    /**
+     * Implementation for Byte Operations
+     **/
 
     void addwf(Operation op, Register reg) {
         int indirectAdress = 0;
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int contentWReg = reg.getWorking_Register();
         int toCalc = (contentWReg + contentFReg);
         saveToRegister(op, reg, toCalc);
@@ -193,9 +197,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int contentWReg = reg.getWorking_Register();
         int toCalc = (contentWReg & contentFReg);
         saveToRegister(op, reg, toCalc);
@@ -216,9 +220,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toSave = (~toCalc) & 0xFF;
         saveToRegister(op, reg, toSave);
     }
@@ -228,9 +232,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc--;
         reg.checkForStatusFlags(toCalc);
         saveToRegister(op, reg, toCalc);
@@ -241,9 +245,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc--;
         if (toCalc == 0) {
             nop(reg);
@@ -258,9 +262,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc++;
         reg.checkForStatusFlags(toCalc);
         saveToRegister(op, reg, toCalc);
@@ -271,9 +275,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int toCalc = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc++;
         if (toCalc == 0 || toCalc == 256) {
             toCalc = 0;
@@ -289,7 +293,7 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
         int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
 
@@ -302,9 +306,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         saveToRegister(op, reg, contentFReg);
     }
 
@@ -326,10 +330,10 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
 
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
 
         int toRotate = contentFReg;
         int carryBeforeOperation = reg.getStatus_Register(1);
@@ -354,9 +358,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
 
         int toRotate = contentFReg;
         int checkBit0 = toRotate & 0b0000_0001;
@@ -378,9 +382,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toCalc = contentFReg - reg.getWorking_Register();
         saveToRegister(op, reg, toCalc);
     }
@@ -390,9 +394,9 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toCalc = contentFReg;
         int lowerNibble = ((toCalc & 0b0000_1111) << 4) & 0b1111_0000;
         int upperNibble = ((toCalc & 0b1111_0000) >> 4) & 0b0000_1111;
@@ -405,17 +409,25 @@ public class Execution {
         int fileAdress = op.getFileAddress();
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
-            fileAdress = indirectAdress;
+            op.setFileAddress(indirectAdress);
         }
-        int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
+        int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toCalc = reg.getWorking_Register() ^ contentFReg;
         saveToRegister(op, reg, toCalc);
     }
 
 
-    //Implementation for Bit Operations
+    /**
+     * Implementation for Bit Operations
+     **/
 
     void bcf(Operation op, Register reg) {
+        int indirectAdress = 0;
+        int fileAdress = op.getFileAddress();
+        if (fileAdress == 0) {
+            indirectAdress = getAdressForIndirectAdressing(op, reg);
+            op.setFileAddress(indirectAdress);
+        }
         int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int mask = calcMaskToUnsetBit(op.getBitAddress() >> 7);
         fromFileReg = fromFileReg & mask;
@@ -423,6 +435,12 @@ public class Execution {
     }
 
     void bsf(Operation op, Register reg) {
+        int indirectAdress = 0;
+        int fileAdress = op.getFileAddress();
+        if (fileAdress == 0) {
+            indirectAdress = getAdressForIndirectAdressing(op, reg);
+            op.setFileAddress(indirectAdress);
+        }
         int fromFileReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int mask = calcMaskToSetBit(op.getBitAddress() >> 7);
         fromFileReg = fromFileReg | mask;
@@ -430,6 +448,12 @@ public class Execution {
     }
 
     void btfsc(Operation op, Register reg) {
+        int indirectAdress = 0;
+        int fileAdress = op.getFileAddress();
+        if (fileAdress == 0) {
+            indirectAdress = getAdressForIndirectAdressing(op, reg);
+            op.setFileAddress(indirectAdress);
+        }
         int register = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int bitMask = calcMaskToSetBit(op.getBitAddress() >> 7);
         if ((register & bitMask) > 0) {
@@ -440,6 +464,12 @@ public class Execution {
     }
 
     void btfss(Operation op, Register reg) {
+        int indirectAdress = 0;
+        int fileAdress = op.getFileAddress();
+        if (fileAdress == 0) {
+            indirectAdress = getAdressForIndirectAdressing(op, reg);
+            op.setFileAddress(indirectAdress);
+        }
         int register = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int bitMask = calcMaskToSetBit(op.getBitAddress() >> 7);
         if ((register & bitMask) == 0) {
@@ -449,7 +479,9 @@ public class Execution {
         }
     }
 
-    //Implementations for Control Operations
+    /**
+     * Implementations for Control Operations
+     **/
 
     void gotoCommand(Operation op, Register reg) {
         int newPCL = op.getFileAddress();

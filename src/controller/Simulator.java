@@ -82,7 +82,7 @@ public class Simulator {
         setPath(lst);
         int[] opCodes = parser.toParse(path);
 
-        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1      FREG2       FSR        ZFLAG        CFLAG");
+        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1          FREG2       FSR         F10         F11        ZFLAG         CFLAG #");
 
         int compl = 0;
 
@@ -105,7 +105,7 @@ public class Simulator {
                         String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
                         + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
                         + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
-                        register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register) + "     " + compl);
+                        register.getStatus_Register(1, register) + "            " + register.getStatus_Register(0, register) + "     " + compl);
 
                 register.incrementTMR0(op, register);
 
