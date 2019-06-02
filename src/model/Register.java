@@ -228,6 +228,8 @@ public class Register {
         return checkForCarryFlag(result);
     }
 
+    //TESTESTEST
+
     /**
      * File IO Mechanics
      **/
