@@ -62,8 +62,7 @@ public class Simulator {
                         + "          " + String.format("0x%02X", register.getWorking_Register()) + "        " +
                         String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
                         + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
-                        + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
-                        register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
+                        + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        ");
 
                 register.incrementTMR0(op, register);
 
@@ -82,7 +81,7 @@ public class Simulator {
         setPath(lst);
         int[] opCodes = parser.toParse(path);
 
-        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1          FREG2       FSR         F10         F11        ZFLAG         CFLAG #");
+        System.out.println("PCL      TYPE        COMMAND     ADDRESS      DBIT       WREG        FREG1          FREG2       FSR         F10         F11     #         ZFLAG         CFLAG #");
 
         int compl = 0;
 
@@ -90,14 +89,30 @@ public class Simulator {
             Operation op = new Operation();
             op.setOpCode(opCodes[register.getProgramm_Counter()]);
 
-
+            //Decoding
             decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
+
 
             if (register.getIntcon(7) != 1) {
                 exec.executeOperation(op, register);
                 register.incrementProgrammCounter();
                 compl++;
+
+                //Flags
+                int cFlag = 0;
+                if (register.getFromStatus_Register(0) > 0) {
+                    cFlag = 1;
+                } else {
+                    cFlag = 0;
+                }
+
+                int zFlag = 0;
+                if (register.getFromStatus_Register(1) > 0) {
+                    zFlag = 1;
+                } else {
+                    zFlag = 0;
+                }
 
                 System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
                         + op.type + "       " + String.format("0x%02X", op.literal) + "         " + op.destinationBit
@@ -105,7 +120,7 @@ public class Simulator {
                         String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
                         + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
                         + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
-                        register.getStatus_Register(1, register) + "            " + register.getStatus_Register(0, register) + "     " + compl);
+                        +compl + "    " + zFlag + "      " + cFlag);
 
                 register.incrementTMR0(op, register);
 
@@ -136,7 +151,7 @@ public class Simulator {
                     String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
                     + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
                     + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
-                    register.getStatus_Register(0, register) + "            " + register.getStatus_Register(1, register));
+                    "            ");
 
             register.incrementTMR0(op, register);
         } else {
