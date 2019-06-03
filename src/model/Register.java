@@ -14,14 +14,11 @@ public class Register {
     //Initialization of the Programm Counter
     static int programm_Counter = 0;                                                              //Program Counter Latch Low     PCL
 
-    //Initialization of Programm Memory
-    static short[] programm_Memory = new short[14336];                                            //1024 x 14B
-
     //Initialization of the Working Register
     static int working_Register = 0;
 
     //Initialization of the Status Register                                                       //Contains all Status flags: 0:C 1:DC 2:Z 3:PD 4:TO 5:RP0 6:RP1 7:IRP
-    static int[] status_Register = new int[8];
+    static int status_Register = 0;
 
     ///Initialization of the File Select Register Bank 0                                          //contains pointer for indirect addressing
     static int file_Save_Register_Bank0 = 0;
@@ -123,10 +120,6 @@ public class Register {
         return programm_Counter;
     }
 
-    public static int[] getStack_Register() {
-        return stack_Register;
-    }
-
     /**
      * Working register operations
      **/
@@ -170,17 +163,26 @@ public class Register {
         return i;
     }
 
-    public int getStatus_Register(int index, Register reg) {
-        return reg.status_Register[index];
-    }
 
     public int getStackpointer() {
         return stackpointer;
     }
 
 
-    public static int getStatus_Register(int index) {
-        return status_Register[index];
+    public static int getFromStatus_Register(int index) {
+        int toReturn = 0;
+        switch (index) {
+            case 0: //Carry Flag
+                toReturn = (status_Register & 0b0000_0001);
+                break;
+            case 2: //Digit Carry Flag
+                toReturn = (status_Register & 0b0000_0010);
+                break;
+            case 3: //Zero Flag
+                toReturn = (status_Register & 0b0000_0100);
+                break;
+        }
+        return toReturn;
     }
 
 
@@ -188,39 +190,51 @@ public class Register {
      * Flag Operations
      **/
 
-    public void setCarryFlag() {
-        status_Register[0] = 1;
+
+    public static void setFlag(int i) {
+        switch (i) {
+            case 0:
+                status_Register = (status_Register | 0b0000_0001);
+                break;
+            case 1:
+                status_Register = (status_Register | 0b0000_0010);
+                break;
+            case 2:
+                status_Register = (status_Register | 0b0000_0100);
+                break;
+            case 3:
+                status_Register = (status_Register | 0b0000_1000);
+                break;
+        }
     }
 
-    public void setCarryFlag(int i) {
-        status_Register[0] = (byte) i;
-    }
-
-    public void setZeroFlag(Register reg) {
-        reg.setZeroFlag();
-    }
-
-    public static void setZeroFlag() {
-        status_Register[3] = 1;
-    }
-
-    public int getZeroFlag(Register reg) {
-        return reg.getStatus_Register(0);
+    public static void resetFlag(int i) {
+        switch (i) {
+            case 0:
+                status_Register = (status_Register & 0b0000_0001);
+                break;
+            case 1:
+                status_Register = (status_Register & 0b0000_0010);
+                break;
+            case 2:
+                status_Register = (status_Register & 0b0000_0100);
+                break;
+            case 3:
+                status_Register = (status_Register & 0b0000_1000);
+                break;
+        }
     }
 
     public void checkForZeroFlag(int result) {
         if (result == 0) {
-            setZeroFlag();
+            setFlag(3);
         }
     }
 
-    public static void setStatus_Register(int i, int value) {
-        status_Register[i] = (byte) value;
-    }
 
     public int checkForCarryFlag(int result) {
         if (result < 0 || result > 255) {
-            setCarryFlag();
+            setFlag(0);
             return (result % 256);
         } else {
             return result;
@@ -243,7 +257,7 @@ public class Register {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
                         ram_Bank0[0] = 0;
-                        setCarryFlag(0);
+                        setFlag(0);
                         break;
                     case 0x1:             //TMR0
                         ram_Bank0[1] = tmr0;
@@ -252,7 +266,7 @@ public class Register {
                         ram_Bank0[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = status_Register[op.getBitAddress()];
+                        ram_Bank0[3] = status_Register;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -273,7 +287,7 @@ public class Register {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
                         ram_Bank1[0] = 0;
-                        setCarryFlag(0);
+                        setFlag(0);
                         break;
                     case 0x01:            //TMR0
                         ram_Bank1[1] = tmr0;
@@ -282,7 +296,7 @@ public class Register {
                         ram_Bank1[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = status_Register[op.getBitAddress()];
+                        ram_Bank1[3] = status_Register;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
@@ -314,6 +328,7 @@ public class Register {
                 switch (op.getFileAddress() % 128) {
                     case 0x0:             //Indirect Addressing
                         ram_Bank0[0] = 0;
+                        setFlag(0);
                         break;
                     case 0x1:             //TMR0
                         ram_Bank0[1] = tmr0;
@@ -322,7 +337,7 @@ public class Register {
                         ram_Bank0[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = status_Register[op.getBitAddress()];
+                        ram_Bank0[3] = status_Register;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -343,7 +358,7 @@ public class Register {
                 switch (adress % 128) {
                     case 0x00:            //Indirect Addressing
                         ram_Bank1[0] = 0;
-                        setCarryFlag();
+                        setFlag(0);
                         break;
                     case 0x01:            //TMR0
                         ram_Bank1[1] = tmr0;
@@ -352,7 +367,7 @@ public class Register {
                         ram_Bank1[2] = programm_Counter;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = status_Register[op.getBitAddress()];
+                        ram_Bank1[3] = status_Register;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
@@ -387,7 +402,6 @@ public class Register {
                 switch (adress) {
                     case 3:
                 }
-
 
 
                 toReturn = ram_Bank1[adress % 128];

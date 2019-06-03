@@ -189,7 +189,7 @@ public class Execution {
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int contentWReg = reg.getWorking_Register();
         int toCalc = (contentWReg + contentFReg);
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void andwf(Operation op, Register reg) {
@@ -202,17 +202,17 @@ public class Execution {
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int contentWReg = reg.getWorking_Register();
         int toCalc = (contentWReg & contentFReg);
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void clrf(Operation op, Register reg) {
         reg.writeToFileRegister(op, 0);
-        reg.setZeroFlag();
+        reg.setFlag(3);
     }
 
     void clrw(Register reg) {
         reg.setWorking_Register(0);
-        reg.setZeroFlag();
+        reg.setFlag(3);
     }
 
     void comf(Operation op, Register reg) {
@@ -224,7 +224,7 @@ public class Execution {
         }
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toSave = (~toCalc) & 0xFF;
-        saveToRegister(op, reg, toSave);
+        saveToRegisterWithCheck(op, reg, toSave);
     }
 
     void decf(Operation op, Register reg) {
@@ -237,7 +237,7 @@ public class Execution {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc--;
         reg.checkForStatusFlags(toCalc);
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void decfsz(Operation op, Register reg) {
@@ -267,7 +267,7 @@ public class Execution {
         int toCalc = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         toCalc++;
         reg.checkForStatusFlags(toCalc);
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void incfsz(Operation op, Register reg) {
@@ -298,7 +298,7 @@ public class Execution {
         int contentFReg = reg.getFromFileRegister(fileAdress, op.getDestinationBit());
 
         int toCalc = reg.getWorking_Register() | contentFReg;
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void movf(Operation op, Register reg) {
@@ -309,7 +309,7 @@ public class Execution {
             op.setFileAddress(indirectAdress);
         }
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
-        saveToRegister(op, reg, contentFReg);
+        saveToRegisterWithCheck(op, reg, contentFReg);
     }
 
     void movwf(Operation op, Register reg) {
@@ -331,26 +331,26 @@ public class Execution {
         if (fileAdress == 0) {
             indirectAdress = getAdressForIndirectAdressing(op, reg);
             op.setFileAddress(indirectAdress);
-
         }
+
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
+        int carryBeforeOperation = reg.getFromStatus_Register(0);
+        int carryBit = (contentFReg & 0b1000_0000);
 
-        int toRotate = contentFReg;
-        int carryBeforeOperation = reg.getStatus_Register(1);
-        int checkBit7 = toRotate & 0b1000_0000;
-
-        toRotate = toRotate << 1;
+        contentFReg = contentFReg << 1;
         //Check for C Flag
-        if (carryBeforeOperation == 1) {
-            toRotate += 1;
-            reg.setStatus_Register(1, 0);
+        if (carryBeforeOperation > 0) {
+            contentFReg += 1;
+            reg.resetFlag(0);
         }
 
-        if (checkBit7 == 128) {
-            reg.setCarryFlag();
+        if (carryBit == 128) {
+            reg.setFlag(0);
+        } else {
+            reg.resetFlag(0);
         }
 
-        saveToRegister(op, reg, toRotate);
+        saveToRegisterWithCheck(op, reg, contentFReg);
     }
 
     void rrf(Operation op, Register reg) {
@@ -364,17 +364,19 @@ public class Execution {
 
         int toRotate = contentFReg;
         int checkBit0 = toRotate & 0b0000_0001;
-        int carryBeforeOperation = reg.getStatus_Register(1);
+        int carryBeforeOperation = reg.getFromStatus_Register(0);
 
         toRotate = toRotate >> 1;
-        if (carryBeforeOperation == 1) {
+        if (carryBeforeOperation > 0) {
             toRotate += 128;
-            reg.setStatus_Register(1, 0);
+            reg.resetFlag(0);
         }
         if (checkBit0 == 1) {
-            reg.setCarryFlag();
+            reg.setFlag(0);
+        } else {
+            reg.resetFlag(0);
         }
-        saveToRegister(op, reg, toRotate);
+        saveToRegisterWithCheck(op, reg, toRotate);
     }
 
     void subwf(Operation op, Register reg) {
@@ -386,7 +388,7 @@ public class Execution {
         }
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toCalc = contentFReg - reg.getWorking_Register();
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
     void swapf(Operation op, Register reg) {
@@ -401,7 +403,7 @@ public class Execution {
         int lowerNibble = ((toCalc & 0b0000_1111) << 4) & 0b1111_0000;
         int upperNibble = ((toCalc & 0b1111_0000) >> 4) & 0b0000_1111;
         int toSave = (lowerNibble + upperNibble) & 0b1111_1111;
-        saveToRegister(op, reg, toSave);
+        saveToRegisterWithCheck(op, reg, toSave);
     }
 
     void xorwf(Operation op, Register reg) {
@@ -413,7 +415,7 @@ public class Execution {
         }
         int contentFReg = reg.getFromFileRegister(op.getFileAddress(), op.getDestinationBit());
         int toCalc = reg.getWorking_Register() ^ contentFReg;
-        saveToRegister(op, reg, toCalc);
+        saveToRegisterWithCheck(op, reg, toCalc);
     }
 
 
@@ -501,6 +503,16 @@ public class Execution {
     }
 
     private void saveToRegister(Operation op, Register reg, int toCalc) {
+        switch (op.getDestinationBit()) {
+            case 0:
+                reg.setWorking_Register(toCalc);
+                break;
+            case 1:
+                reg.writeToFileRegister(op, toCalc);
+        }
+    }
+
+    private void saveToRegisterWithCheck(Operation op, Register reg, int toCalc) {
         toCalc = reg.checkForStatusFlags(toCalc);
         switch (op.getDestinationBit()) {
             case 0:
@@ -511,7 +523,7 @@ public class Execution {
         }
     }
 
-    private void saveToRegister(Operation op, Register reg, int toCalc, int indirectAdress) {
+    private void saveToRegisterWithCheck(Operation op, Register reg, int toCalc, int indirectAdress) {
         toCalc = reg.checkForStatusFlags(toCalc);
         switch (op.getDestinationBit()) {
             case 0:
