@@ -35,8 +35,11 @@ public class Register {
     //Initialization of the Timerregister TMR0
     static int tmr0 = 0;
 
+    //Initialization of the Timerregister TMR0
+    static int option_Register = 0;                                                               //0:PS0 1:PS1 2:PS2 3:PSA 4:T0SE 5:T0CS 6:INTEDG 7:RBPU
+
     //Initialization of INTCON Register
-    static int[] intcon = new int[8];                                                             //[0]RB Port Change [1]RBO interrupt [2]TMR0 overflow [3]RBIE [4]INTE [5]T0IE [6]EEIE [7]GIE
+    public static int intcon = 0;                                                                        //[0]RB Port Change [1]RBO interrupt [2]TMR0 overflow [3]RBIE [4]INTE [5]T0IE [6]EEIE [7]GIE
 
 
     /**
@@ -50,14 +53,8 @@ public class Register {
         file_Save_Register_Bank1 = 0;
         working_Register = 0;
 
-        intcon[7] = 0;
-        intcon[5] = 0;
-        intcon[4] = 0;
-        intcon[3] = 0;
-        intcon[2] = 0;
-        intcon[1] = 0;
-        intcon[0] = 0;
-
+        intcon = 0;
+        status_Register = 0;
         tmr0 = 0;
 
 
@@ -246,15 +243,19 @@ public class Register {
         return checkForCarryFlag(result);
     }
 
+
+    /** Option Register**/
+
+
     /**
      * File IO Mechanics
      **/
 
     public void writeToFileRegister(Operation op, int toStore) {
         int adress = op.getFileAddress();
-        if ((adress % 128) < 0x0C && (adress % 128) >= 0x00) {
+        if ((adress < 0x0C && adress >= 0x00)) {
             if (op.getDestinationBit() == 0) {
-                switch (op.getFileAddress() % 128) {
+                switch (op.getFileAddress()) {
                     case 0x0:             //Indirect Addressing
                         ram_Bank0[0] = 0;
                         setFlag(0);
@@ -281,10 +282,11 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank1[11] = intcon;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
-                switch (adress % 128) {
+                switch (adress) {
                     case 0x00:            //Indirect Addressing
                         ram_Bank1[0] = 0;
                         setFlag(0);
@@ -311,10 +313,14 @@ public class Register {
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank1[11] = intcon;
+                        break;
+                    case 81:
+                        ram_Bank1[129] = option_Register;
                         break;
                 }
             }
-        } else if ((adress <= 0x80) && ((adress % 128) >= 0x0C)) {
+        } else if ((adress <= 0x80) && (adress >= 0x0C)) {
             ram_Bank0[adress % 128] = toStore;
             ram_Bank1[adress % 128] = toStore;
 
@@ -323,9 +329,9 @@ public class Register {
 
     public void writeToFileRegister(Operation op, int adressToRegister, int toStore) {
         int adress = adressToRegister;
-        if ((adress % 128) < 0x0C && (adress % 128) >= 0x00) {
+        if ((adress < 0x0C && adress >= 0x00)) {
             if (op.getDestinationBit() == 0) {
-                switch (op.getFileAddress() % 128) {
+                switch (op.getFileAddress()) {
                     case 0x0:             //Indirect Addressing
                         ram_Bank0[0] = 0;
                         setFlag(0);
@@ -352,16 +358,17 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank1[11] = intcon;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
-                switch (adress % 128) {
+                switch (adress) {
                     case 0x00:            //Indirect Addressing
                         ram_Bank1[0] = 0;
                         setFlag(0);
                         break;
-                    case 0x01:            //TMR0
-                        ram_Bank1[1] = tmr0;
+                    case 0x01:            //Option Register
+                        ram_Bank1[1] = option_Register;
                         break;
                     case 0x02:            //Program Counter Latch Low
                         ram_Bank1[2] = programm_Counter;
@@ -382,10 +389,11 @@ public class Register {
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
+                        ram_Bank1[11] = intcon;
                         break;
                 }
             }
-        } else if ((adress <= 0x80) && ((adress % 128) >= 0x0C)) {
+        } else if ((adress <= 0x80) && ((adress) >= 0x0C)) {
             ram_Bank0[adress % 128] = toStore;
             ram_Bank1[adress % 128] = toStore;
 
@@ -399,11 +407,6 @@ public class Register {
                 toReturn = ram_Bank0[adress % 128];
                 break;
             case 1:
-                switch (adress) {
-                    case 3:
-                }
-
-
                 toReturn = ram_Bank1[adress % 128];
                 break;
         }
@@ -466,8 +469,8 @@ public class Register {
         return ram_Bank0;
     }
 
-    public static int getIntcon(int i) {
-        return intcon[i];
+    public static int getIntcon() {
+        return intcon;
     }
 
     /**
@@ -477,8 +480,6 @@ public class Register {
 
     public void interrupt() {
         push(programm_Counter);
-        //Set GIE
-        intcon[7] = 1;
     }
 
     public static int getTmr0() {
@@ -498,10 +499,9 @@ public class Register {
     private void checkForTMR0Overflow(Register reg) {
         if (tmr0 > 255) {
             //Check for Timer enable Bit TOIE
-            if (intcon[5] == 1) {
-                intcon[2] = 1;
+            if ((intcon & 0b0010_0000) == 32) {
+                setT0IF();
                 interrupt();
-                setGIE(1);
                 System.out.println("TMR0 Overflow");
             }
         }
@@ -511,55 +511,165 @@ public class Register {
      * RB Interrupts
      **/
 
-    public void setGIE(int i) {
-        intcon[7] = i;
-    }
-
-    public void setGIE() {
-        if (intcon[7] == 0) {
-            intcon[7] = 1;
-        } else {
-            intcon[7] = 0;
-        }
-    }
-
-    public void setRBPC() {
-        if (intcon[0] == 0) {
-            intcon[4] = 1;
-        } else {
-            intcon[0] = 0;
-        }
-    }
-
-    public void setTOIE() {
-        if (intcon[5] == 0) {
-            intcon[5] = 1;
-        } else {
-            intcon[5] = 0;
-        }
-    }
-
-    public void setRBIE() {
-        if (intcon[3] == 0) {
-            intcon[3] = 1;
-        } else {
-            intcon[3] = 0;
-        }
-    }
-
     public void rb0Interrupt() {
-        intcon[1] = 1;
-        interrupt();
-        setGIE(1);
-        System.out.println("RB0 Interrupt");
+        if (((intcon & 0b1000_0000) == 128) && ((intcon & 0b0001_0000) == 16)) {
+            setINTF();
+            interrupt();
+            System.out.println("RB0 Interrupt");
+        }
     }
 
     public void rbInterrupt() {
-        if (intcon[3] == 1) {
+        if (((intcon & 0b1000_0000) == 128) && ((intcon & 0b0000_1000) == 8)) {
+            setRBIF();
             interrupt();
-            setGIE(1);
             System.out.println("RB Port Change Interrupt");
         }
+    }
+
+
+    /**
+     * INTCON Register
+     **/
+
+    public void setGIE() {
+        intcon = (intcon | 0b1000_0000);
+    }
+
+    public void setEEIE() {
+        intcon = (intcon | 0b0100_0000);
+    }
+
+    public void setTOIE() {
+        intcon = (intcon | 0b0010_0000);
+    }
+
+    public void setINTE() {
+        intcon = (intcon | 0b0001_0000);
+    }
+
+    public void setRBIE() {
+        intcon = (intcon | 0b0000_1000);
+    }
+
+    public void setT0IF() {
+        intcon = (intcon | 0b0000_0100);
+    }
+
+    public void setINTF() {
+        intcon = (intcon | 0b0000_0010);
+    }
+
+    public void setRBIF() {
+        intcon = (intcon | 0b0000_0001);
+    }
+
+    public void resetGIE() {
+        intcon = (intcon | 0b1000_0000);
+    }
+
+    public void resetEEIE() {
+        intcon = (intcon | 0b0100_0000);
+    }
+
+    public void resetTOIE() {
+        intcon = (intcon | 0b0010_0000);
+    }
+
+    public void resetINTE() {
+        intcon = (intcon | 0b0001_0000);
+    }
+
+    public void resetRBIE() {
+        intcon = (intcon | 0b0000_1000);
+    }
+
+    public void resetT0IF() {
+        intcon = (intcon | 0b0000_0100);
+    }
+
+    public void resetINTF() {
+        intcon = (intcon | 0b0000_0010);
+    }
+
+    public void resetRBIF() {
+        intcon = (intcon | 0b0000_0001);
+    }
+
+    public void toggleRegister(int index) {
+        switch (index) {
+            case 0:
+                if ((intcon & 0b0000_0001) > 0) {
+                    resetRBIF();
+                } else {
+                    setRBIF();
+                }
+                break;
+            case 1:
+                if ((intcon & 0b0000_0010) > 0) {
+                    resetINTF();
+                } else {
+                    setINTF();
+                }
+                break;
+            case 2:
+                if ((intcon & 0b0000_0100) > 0) {
+                    resetT0IF();
+                } else {
+                    setT0IF();
+                }
+                break;
+            case 3:
+                if ((intcon & 0b0000_1000) > 0) {
+                    resetRBIE();
+                } else {
+                    setRBIE();
+                }
+                break;
+            case 4:
+                if ((intcon & 0b0001_0000) > 0) {
+                    resetINTE();
+                } else {
+                    setINTE();
+                }
+                break;
+            case 5:
+                if ((intcon & 0b0010_0000) > 0) {
+                    resetTOIE();
+                } else {
+                    setTOIE();
+                }
+                break;
+            case 6:
+                if ((intcon & 0b0100_0000) > 0) {
+                    resetEEIE();
+                } else {
+                    setEEIE();
+                }
+                break;
+            case 7:
+                if ((intcon & 0b1000_0000) > 0) {
+                    resetGIE();
+                } else {
+                    setGIE();
+                }
+                break;
+        }
+    }
+
+    public boolean checkForInterrupt() {
+        boolean interrupted = false;
+        //Check GIE
+        if ((intcon & 0b1000_0000) == 128) {
+            if ((intcon & 0b0000_0001) == 1) {
+                interrupted = true;
+            } else if ((intcon & 0b0000_0010) == 2) {
+                interrupted = true;
+            } else if ((intcon & 0b0000_0100) == 4) {
+                interrupted = true;
+            }
+        }
+        return interrupted;
     }
 }
 

@@ -53,7 +53,7 @@ public class Simulator {
             decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
 
-            if (register.getIntcon(7) != 1) {
+            if (!register.checkForInterrupt()) {
                 exec.executeOperation(op, register);
                 register.incrementProgrammCounter();
 
@@ -94,7 +94,7 @@ public class Simulator {
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
 
 
-            if (register.getIntcon(7) != 1) {
+            if (!register.checkForInterrupt()) {
                 exec.executeOperation(op, register);
                 register.incrementProgrammCounter();
                 compl++;
@@ -126,7 +126,7 @@ public class Simulator {
 
 
             } else {
-                System.out.println("GIE is enabled");
+                System.out.println("Interrupt is set");
             }
 
         }
@@ -141,7 +141,9 @@ public class Simulator {
         op.setOpCode(opCodes[register.getProgramm_Counter()]);
         decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
         decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
-        if (register.getIntcon(7) != 1) {
+        if (register.checkForInterrupt() == false) {
+
+
             exec.executeOperation(op, register);
             register.incrementProgrammCounter();
 
@@ -155,58 +157,75 @@ public class Simulator {
 
             register.incrementTMR0(op, register);
         } else {
-            System.out.println("GIE is enabled");
+            System.out.println("Interrupt is set");
         }
     }
 
 
-    public void setPath(int lst) {
+    public String setPath(int lst) {
+        String toReturn = null;
         switch (lst) {
             case 1:
                 setPath("./LST Files/SimTest_OG/TPicSim1.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim1.LST";
                 break;
             case 2:
                 setPath("./LST Files/SimTest_OG/TPicSim2.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim2.LST";
                 break;
             case 3:
                 setPath("./LST Files/SimTest_OG/TPicSim3.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim3.LST";
                 break;
             case 4:
                 setPath("./LST Files/SimTest_OG/TPicSim4.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim4.LST";
                 break;
             case 5:
                 setPath("./LST Files/SimTest_OG/TPicSim5.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim5.LST";
                 break;
             case 6:
                 setPath("./LST Files/SimTest_OG/TPicSim6.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim6.LST";
                 break;
             case 7:
                 setPath("./LST Files/SimTest_OG/TPicSim7.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim7.LST";
                 break;
             case 8:
                 setPath("./LST Files/SimTest_OG/TPicSim8.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim8.LST";
                 break;
             case 9:
                 setPath("./LST Files/SimTest_OG/TPicSim9.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim9.LST";
                 break;
             case 10:
                 setPath("./LST Files/SimTest_OG/TPicSim10.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim10.LST";
                 break;
             case 11:
                 setPath("./LST Files/SimTest_OG/TPicSim11.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim11.LST";
                 break;
             case 12:
                 setPath("./LST Files/SimTest_OG/TPicSim12.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim12.LST";
                 break;
             case 13:
                 setPath("./LST Files/SimTest_OG/TPicSim13.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim13.LST";
                 break;
             case 14:
                 setPath("./LST Files/SimTest_OG/TPicSim14.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim14.LST";
                 break;
             case 101:
                 setPath("./LST Files/SimTest_OG/TPicSim101.LST");
+                toReturn = "./LST Files/SimTest_OG/TPicSim101.LST";
                 break;
         }
+        return toReturn;
     }
 }
