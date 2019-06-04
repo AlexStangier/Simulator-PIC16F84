@@ -1,20 +1,13 @@
 package view;
 
-import controller.LSTLabel;
-import controller.Parser;
-import controller.Simulator;
+import controller.*;
 import model.Register;
 
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class SimulatorGUI {
@@ -27,7 +20,6 @@ public class SimulatorGUI {
     private JButton rb5;
     private JButton rb6;
     private JButton rb7;
-    private JTextArea LSTView;
     private JTextField runtimeField;
     private JPanel lstView;
     private JLabel runtimeLabel;
@@ -51,16 +43,77 @@ public class SimulatorGUI {
     private JLabel lstLabel1;
     private JLabel lstLabel2;
     private JLabel lstLabel3;
+    private JLabel stack0;
+    private JLabel ps0Label;
+    private JLabel ps1Label;
+    private JLabel ps2Label;
+    private JLabel psaLabel;
+    private JLabel t0seLabel;
+    private JLabel t0csLabel;
+    private JLabel inetdgLabel;
+    private JLabel rbpuLabel;
+    private JLabel carryLabel;
+    private JLabel dcLabel;
+    private JLabel zeroLabel;
+    private JLabel pdLabel;
+    private JLabel toLabel;
+    private JLabel rp0Label;
+    private JLabel rp1Label;
+    private JLabel irpLabel;
+    private JLabel rbieLabel;
+    private JLabel inteLabel;
+    private JLabel t0ieLabel;
+    private JLabel eeieLabel;
+    private JLabel tmr0Label;
+    private JButton rb1Butt;
+    private JButton rb2Butt;
+    private JButton rb3Butt;
+    private JButton RA4T0CKLButton;
+    private JButton RA3Button;
+    private JButton RA2Button;
+    private JButton RA1Button;
+    private JButton RA0Button;
+    private JPanel RA;
+    private JPanel RB;
+    private JLabel ra0Label;
+    private JLabel ra1LAbel;
+    private JLabel ra2Label;
+    private JLabel ra3Label;
+    private JLabel ra4Label;
+    private JLabel ra5LAbel;
+    private JLabel ra6Label;
+    private JLabel ra7Label;
+    private JLabel rb0Label;
+    private JLabel rb1Label;
+    private JLabel rb2Label;
+    private JLabel rb3LAbel;
+    private JLabel rb4Label;
+    private JLabel rb5Label;
+    private JLabel rb6Label;
+    private JLabel rb7Label;
+    private JLabel EEIE;
+    private JLabel stack1;
+    private JLabel stack2;
+    private JLabel stack3;
+    private JLabel stack4;
+    private JLabel stack5;
+    private JLabel stack6;
+    private JLabel stack7;
     private Simulator runningSimulation;
     private JTable lstTable;
 
     private String pathToLST;
-    private int lst = 1;
+    private int lst = 8;
     private String[] lstArr;
+    private Parser psr = new Parser();
+    private static Register reg = new Register();
+    private String[][] fsrArr;
+    private DefaultTableModel fsrModel;
+    private Decoder dec = new Decoder();
+    private Operation[] opArr;
 
-    Parser psr = new Parser();
-    Register reg = new Register();
 
+    //TODO RETFIE
 
     public SimulatorGUI() {
 
@@ -73,53 +126,54 @@ public class SimulatorGUI {
 
 
         //Combo Box
-        switch (comboBox1.getSelectedIndex()) {
-            case 0:
-                lst = 1;
-                break;
-            case 1:
-                lst = 2;
-                break;
-            case 2:
-                lst = 3;
-                break;
-            case 3:
-                lst = 4;
-                break;
-            case 4:
-                lst = 5;
-                break;
-            case 5:
-                lst = 6;
-                break;
-            case 6:
-                lst = 7;
-                break;
-            case 7:
-                lst = 8;
-                break;
-            case 8:
-                lst = 9;
-                break;
-            default:
-                lst = 0;
-                break;
+        /** switch (comboBox1.getSelectedIndex()) {
+         case 0:
+         lst = 1;
+         break;
+         case 1:
+         lst = 2;
+         break;
+         case 2:
+         lst = 3;
+         break;
+         case 3:
+         lst = 4;
+         break;
+         case 4:
+         lst = 5;
+         break;
+         case 5:
+         lst = 6;
+         break;
+         case 6:
+         lst = 7;
+         break;
+         case 7:
+         lst = 8;
+         break;
+         case 8:
+         lst = 9;
+         break;
+         default:
+         lst = 0;
+         break;
+         }
+         comboBox1.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(ActionEvent e) {
+        pathToLST = runningSimulation.setPath(lst);
+        lstArr = psr.cleanUpArray(psr.readCommands(pathToLST));
+        initView(reg, lstArr);
         }
-        comboBox1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                initView(reg, lstArr);
-            }
-        });
+        });**/
+
 
         //Start Button
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                runningSimulation.startExecuting(lst, 121);
+                runningSimulation.startExecuting(lst, 127);
                 root.updateUI();
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
 
             }
         });
@@ -129,8 +183,18 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 runningSimulation.executeStep();
-                updateSpecialRegister(reg);
-                updateLST(lstArr);
+                update(lstArr, reg);
+            }
+        });
+
+        //Reset Button
+        reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.resetRegisters();
+                updateLabel(reg);
+                update(lstArr, reg);
+
             }
         });
 
@@ -138,8 +202,7 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 initView(reg, lstArr);
-                updateLST(lstArr);
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
         });
 
@@ -148,7 +211,7 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.rb0Interrupt();
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
 
         });
@@ -158,7 +221,7 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.toggleRegister(3);
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
         });
 
@@ -167,7 +230,7 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.toggleRegister(4);
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
         });
         //TOIE Radio
@@ -175,65 +238,89 @@ public class SimulatorGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.toggleRegister(5);
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
         });
 
 
-        //RB4:7 Interrupts
+        //RA
+
+
+        //RB1:7 Interrupts
+
+        rb1Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.rbInterrupt(0);
+                update(lstArr, reg);
+            }
+        });
+
+        rb2Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.rbInterrupt(1);
+                update(lstArr, reg);
+            }
+        });
+
+        rb3Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.rbInterrupt(2);
+                update(lstArr, reg);
+            }
+        });
 
         rb4.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.rbInterrupt();
-                updateSpecialRegister(reg);
+                reg.rbInterrupt(3);
+                update(lstArr, reg);
             }
         });
         rb5.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.rbInterrupt();
-                updateSpecialRegister(reg);
+                reg.rbInterrupt(4);
+                update(lstArr, reg);
             }
         });
         rb6.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.rbInterrupt();
-                updateSpecialRegister(reg);
+                reg.rbInterrupt(5);
+                update(lstArr, reg);
             }
         });
         rb7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.rbInterrupt();
-                updateSpecialRegister(reg);
+                reg.rbInterrupt(7);
+                update(lstArr, reg);
             }
         });
 
-        //Reset Button
-        reset.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                reg.resetRegisters();
-                updateSpecialRegister(reg);
-                updateLST(lstArr);
-
-            }
-        });
         gieButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reg.toggleRegister(7);
-                updateSpecialRegister(reg);
+                update(lstArr, reg);
             }
         });
 
 
     }
 
-    private void updateSpecialRegister(Register reg) {
+    private void updateStack() {
+        stack0.setText(Integer.toString(reg.getFromStack_Register(0)));
+    }
 
+    private void updateLabel(Register reg) {
+
+        /** Special **/
+
+        tmr0Label.setText(Integer.toString(reg.getTmr0()));
 
         //Runtime Display
         runtimeLabel.setText(String.valueOf(reg.getTmr0()));
@@ -247,17 +334,88 @@ public class SimulatorGUI {
         //PCL Label
         pcllabel.setText(String.valueOf(reg.getProgramm_Counter()));
 
+        /**INTCON**/
+
         //GIE
-        gieLabel.setText(String.valueOf(reg.getIntcon()));
+        gieLabel.setText(String.valueOf((reg.getIntcon() & 0b1000_0000) >> 7));
+
+        //EEIE
+        eeieLabel.setText("0");
+
+        //T0IE
+        t0ieLabel.setText(String.valueOf((reg.getIntcon() & 0b0010_0000) >> 5));
+
+        //INTE
+        inteLabel.setText(String.valueOf((reg.getIntcon() & 0b0001_0000) >> 4));
+
+        //INTE
+        rbieLabel.setText(String.valueOf((reg.getIntcon() & 0b0000_1000) >> 3));
 
         //T0IF
-        t0ifLabel.setText(String.valueOf(reg.getIntcon()));
+        t0ifLabel.setText(String.valueOf((reg.getIntcon() & 0b0000_0100) >> 2));
 
         //INTF
-        intfLabel.setText(String.valueOf(reg.getIntcon()));
+        intfLabel.setText(String.valueOf((reg.getIntcon() & 0b0000_0010) >> 1));
 
         //RBIF
-        rbifLabel.setText(String.valueOf(reg.getIntcon()));
+        rbifLabel.setText(String.valueOf((reg.getIntcon() & 0b0000_0001)));
+
+        /** STACK **/
+
+        //Stack
+        stack0.setText(Integer.toString(reg.getFromStack_Register(0)));
+
+        /** STATUS **/
+
+        //Carry
+        carryLabel.setText(Integer.toString(reg.getStatus_Register() & 0b0000_0001));
+
+        //DC
+        dcLabel.setText("0");
+
+        //Zero
+        zeroLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0100) >> 2));
+
+        //Power Down
+        pdLabel.setText("0");
+
+        //TO
+        toLabel.setText("0");
+
+        //RP0
+        rp0Label.setText(Integer.toString((reg.getStatus_Register() & 0b0010_0000) >> 5));
+
+        //RP1
+        rp1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0100_0000) >> 6));
+
+        //IRP
+        rp0Label.setText("0");
+
+        /** OPTION **/
+
+        //PS0
+        ps0Label.setText(Integer.toString((reg.getOption_Register() & 0b0000_0001)));
+
+        //PS1
+        ps1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0010) >> 1));
+
+        //PS2
+        ps1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0100) >> 2));
+
+        //PSA
+        psaLabel.setText("0");
+
+        //T0SE
+        t0seLabel.setText("0");
+
+        //T0CS
+        t0csLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0010_0000) >> 5));
+
+        //INETDG
+        inetdgLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0100_0000) >> 6));
+
+        //RBPU
+        rbpuLabel.setText(Integer.toString((reg.getStatus_Register() & 0b1000_0000) >> 7));
 
     }
 
@@ -275,9 +433,14 @@ public class SimulatorGUI {
         lstLabel3.setForeground(Color.gray);
     }
 
-    private void initView(Register reg, String[] lstArr) {
-        reg.resetRegisters();
+    private void update(String[] lstArr, Register reg) {
         updateLST(lstArr);
+        fileregisterTable.setModel(updateFSR());
+        updateLabel(reg);
+        updateStack();
+    }
+
+    private void initView(Register reg, String[] lstArr) {
         runtimeLabel.setText(String.valueOf(0));
         wreglabel.setText(String.valueOf(0));
         fsrlabel.setText(String.valueOf(0));
@@ -286,9 +449,104 @@ public class SimulatorGUI {
         intfLabel.setText(String.valueOf(0));
         rbifLabel.setText(String.valueOf(0));
         gieLabel.setText(String.valueOf(0));
+        rbieLabel.setText(String.valueOf(0));
+        inteLabel.setText(String.valueOf(0));
+        t0ieLabel.setText(String.valueOf(0));
+        eeieLabel.setText(String.valueOf(0));
+        carryLabel.setText(String.valueOf(0));
+        dcLabel.setText(String.valueOf(0));
+        zeroLabel.setText(String.valueOf(0));
+        pdLabel.setText(String.valueOf(0));
+        toLabel.setText(String.valueOf(0));
+        rp0Label.setText(String.valueOf(0));
+        rp1Label.setText(String.valueOf(0));
+        irpLabel.setText(String.valueOf(0));
+        ps0Label.setText(String.valueOf(0));
+        ps1Label.setText(String.valueOf(0));
+        ps2Label.setText(String.valueOf(0));
+        psaLabel.setText(String.valueOf(0));
+        t0seLabel.setText(String.valueOf(0));
+        t0csLabel.setText(String.valueOf(0));
+        inetdgLabel.setText(String.valueOf(0));
+        rbpuLabel.setText(String.valueOf(0));
+        stack0.setText(String.valueOf(0));
+        tmr0Label.setText("0");
+        ra0Label.setText(String.valueOf(0));
+        ra1LAbel.setText(String.valueOf(0));
+        ra2Label.setText(String.valueOf(0));
+        ra3Label.setText(String.valueOf(0));
+        ra4Label.setText(String.valueOf(0));
+        ra5LAbel.setText(String.valueOf(0));
+        ra6Label.setText(String.valueOf(0));
+        ra7Label.setText(String.valueOf(0));
+        rb0Label.setText(String.valueOf(0));
+        rb1Label.setText(String.valueOf(0));
+        rb2Label.setText(String.valueOf(0));
+        rb3LAbel.setText(String.valueOf(0));
+        rb4Label.setText(String.valueOf(0));
+        rb5Label.setText(String.valueOf(0));
+        rb6Label.setText(String.valueOf(0));
+        rb7Label.setText(String.valueOf(0));
+
+        reg.resetRegisters();
+        updateLST(lstArr);
+
+    }
+
+    private String[][] initFSR(Register reg) {
+        //FSR
+        int[] fsrIntArr = new int[130];
+        int[] ram_Bank0 = reg.getRam_Bank1();
+        for (int i = 0; i < 128; i++) {
+            fsrIntArr[i] = ram_Bank0[i];
+        }
+        fsrIntArr[128] = 0;
+        fsrIntArr[129] = 0;
+        fsrArr = new String[13][10];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 13; j++) {
+                fsrArr[j][i] = Integer.toString(fsrIntArr[i]);
+            }
+        }
+
+        return fsrArr;
+
+
+    }
+
+    private void initialize() {
+
+        runningSimulation = new Simulator(reg);
+        pathToLST = runningSimulation.setPath(lst);
+        runningSimulation.setOpCodes();
+        lstArr = psr.cleanUpArray(psr.readCommands(pathToLST));
+
+    }
+
+    private DefaultTableModel updateFSR() {
+        String[] column = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        int[] fsrIntArr = new int[130];
+        int[] ram_Bank1 = reg.getRam_Bank1();
+        for (int i = 0; i < 128; i++) {
+            fsrIntArr[i] = ram_Bank1[i];
+        }
+        fsrIntArr[128] = 0;
+        fsrIntArr[129] = 0;
+
+        fsrModel = new DefaultTableModel();
+        fsrArr = new String[13][10];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 13; j++) {
+                fsrArr[j][i] = Integer.toString(fsrIntArr[i]);
+            }
+        }
+        fsrModel.setDataVector(fsrArr, column);
+        return fsrModel;
     }
 
     public static void main(String[] args) {
+        //reg = new Register();
+        SimulatorGUI sg = new SimulatorGUI();
         JFrame frame = new JFrame("Simulator-PIC16F84");
         frame.setContentPane(new SimulatorGUI().root);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -297,5 +555,11 @@ public class SimulatorGUI {
         frame.setVisible(true);
 
 
+    }
+
+    private void createUIComponents() {
+        initFSR(reg);
+        String[] column = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        fileregisterTable = new JTable(fsrArr, column);
     }
 }

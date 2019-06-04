@@ -41,6 +41,17 @@ public class Register {
     //Initialization of INTCON Register
     public static int intcon = 0;                                                                        //[0]RB Port Change [1]RBO interrupt [2]TMR0 overflow [3]RBIE [4]INTE [5]T0IE [6]EEIE [7]GIE
 
+    //Initialization of TRISA Register
+    public static int trisa = 0;
+
+    //Initialization of TRISB Register
+    public static int trisb = 0;
+
+    //Initialization of PORTA Register
+    public static int porta = 0;
+
+    //Initialization of PORTB Register
+    public static int portb = 0;
 
     /**
      * Sets all Registers to null
@@ -54,8 +65,15 @@ public class Register {
         working_Register = 0;
 
         intcon = 0;
-        status_Register = 0;
+        option_Register = 0;
+        status_Register = (status_Register | 0x18);
         tmr0 = 0;
+
+        trisa = 31;
+        trisb = 255;
+
+        porta = 0;
+        portb = 0;
 
 
         for (int i = 0; i < stack_Register.length; i++) {
@@ -182,6 +200,29 @@ public class Register {
         return toReturn;
     }
 
+    /**
+     * Status Register
+     **/
+
+    public static int getStatus_Register() {
+        return status_Register;
+    }
+
+    public static void setStatus_Register(int status_Register) {
+        Register.status_Register = status_Register;
+    }
+
+    /**
+     * Option Register
+     **/
+
+    public static int getOption_Register() {
+        return option_Register;
+    }
+
+    public static void setOption_Register(int option_Register) {
+        Register.option_Register = option_Register;
+    }
 
     /**
      * Flag Operations
@@ -261,13 +302,13 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x1:             //TMR0
-                        ram_Bank0[1] = tmr0;
+                        tmr0 += toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank0[2] = programm_Counter;
+                        programm_Counter += toStore;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = status_Register;
+                        status_Register += toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -282,7 +323,7 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank1[11] = intcon;
+                        intcon += toStore;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
@@ -292,31 +333,28 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x01:            //TMR0
-                        ram_Bank1[1] = tmr0;
+                        option_Register += toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank1[2] = programm_Counter;
+                        programm_Counter += toStore;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = status_Register;
+                        status_Register += toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
                         break;
                     case 0x05:            //TRIS A
-                        ram_Bank1[5] = toStore;
+                        trisa += toStore;
                         break;
                     case 0x06:            //TRIS B
-                        ram_Bank1[6] = toStore;
+                        trisb += toStore;
                         break;
                     case 0x0A:            //Program Counter Latch High
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank1[11] = intcon;
-                        break;
-                    case 81:
-                        ram_Bank1[129] = option_Register;
+                        intcon += toStore;
                         break;
                 }
             }
@@ -337,13 +375,13 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x1:             //TMR0
-                        ram_Bank0[1] = tmr0;
+                        tmr0 = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank0[2] = programm_Counter;
+                        programm_Counter = toStore;
                         break;
                     case 0x03:            //Status
-                        ram_Bank0[3] = status_Register;
+                        status_Register = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -358,7 +396,7 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank1[11] = intcon;
+                        intcon = toStore;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
@@ -368,13 +406,13 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x01:            //Option Register
-                        ram_Bank1[1] = option_Register;
+                        option_Register += toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        ram_Bank1[2] = programm_Counter;
+                        programm_Counter += toStore;
                         break;
                     case 0x03:            //Status
-                        ram_Bank1[3] = status_Register;
+                        status_Register += toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
@@ -389,7 +427,7 @@ public class Register {
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        ram_Bank1[11] = intcon;
+                        intcon += toStore;
                         break;
                 }
             }
@@ -405,9 +443,37 @@ public class Register {
         switch (destinationBit) {
             case 0:
                 toReturn = ram_Bank0[adress % 128];
+                switch (adress) {
+                    case 1:
+                        toReturn = tmr0;
+                        break;
+                    case 2:
+                        toReturn = programm_Counter;
+                        break;
+                    case 3:
+                        toReturn = status_Register;
+                        break;
+                    case 0x0B:
+                        toReturn = intcon;
+                        break;
+                }
                 break;
             case 1:
                 toReturn = ram_Bank1[adress % 128];
+                switch (adress) {
+                    case 1:
+                        toReturn = tmr0;
+                        break;
+                    case 2:
+                        toReturn = programm_Counter;
+                        break;
+                    case 3:
+                        toReturn = status_Register;
+                        break;
+                    case 0x0B:
+                        toReturn = intcon;
+                        break;
+                }
                 break;
         }
         return toReturn;
@@ -465,7 +531,11 @@ public class Register {
         }
     }
 
-    public static int[] getRam_Bank0() {
+    public int[] getRam_Bank0() {
+        return ram_Bank0;
+    }
+
+    public int[] getRam_Bank1() {
         return ram_Bank0;
     }
 
@@ -507,6 +577,40 @@ public class Register {
         }
     }
 
+
+    /**
+     * RA PINS
+     **/
+
+    public void raPin(int i) {
+        if (((intcon & 0b1000_0000) == 128) && ((intcon & 0b0000_1000) == 8)) {     //TODO tris io settings
+            switch (i) {
+                case 0:
+                    portb = +1;
+                    break;
+                case 1:
+                    portb += 2;
+                    break;
+                case 2:
+                    portb += 4;
+                    break;
+                case 3:
+                    portb += 8;
+                    break;
+                case 4:
+                    portb += 16;
+                    break;
+                case 5:
+                    portb += 32;
+                    break;
+                case 6:
+                    portb += 64;
+                    break;
+
+            }
+        }
+    }
+
     /**
      * RB Interrupts
      **/
@@ -519,11 +623,36 @@ public class Register {
         }
     }
 
-    public void rbInterrupt() {
-        if (((intcon & 0b1000_0000) == 128) && ((intcon & 0b0000_1000) == 8)) {
+    public void rbInterrupt(int i) {
+        if (((intcon & 0b1000_0000) == 128) && ((intcon & 0b0000_1000) == 8)) {     //TODO tris io settings
             setRBIF();
             interrupt();
             System.out.println("RB Port Change Interrupt");
+
+            switch (i) {
+                case 0:
+                    portb = +1;
+                    break;
+                case 1:
+                    portb += 2;
+                    break;
+                case 2:
+                    portb += 4;
+                    break;
+                case 3:
+                    portb += 8;
+                    break;
+                case 4:
+                    portb += 16;
+                    break;
+                case 5:
+                    portb += 32;
+                    break;
+                case 6:
+                    portb += 64;
+                    break;
+
+            }
         }
     }
 
@@ -670,6 +799,10 @@ public class Register {
             }
         }
         return interrupted;
+    }
+
+    public static void setIntcon(int intcon) {
+        Register.intcon = intcon;
     }
 }
 

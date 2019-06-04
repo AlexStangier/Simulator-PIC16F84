@@ -54,8 +54,12 @@ public class Simulator {
             decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
 
             if (!register.checkForInterrupt()) {
+
+                //TODO check rp0 / dest bit
+
                 exec.executeOperation(op, register);
                 register.incrementProgrammCounter();
+
 
                 System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
                         + op.type + "       " + String.format("0x%02X", op.literal) + "         " + op.destinationBit
@@ -95,7 +99,12 @@ public class Simulator {
 
 
             if (!register.checkForInterrupt()) {
+
+                //TODO check rp0 / dest bit
+
                 exec.executeOperation(op, register);
+
+
                 register.incrementProgrammCounter();
                 compl++;
 
@@ -143,8 +152,11 @@ public class Simulator {
         decoder.determineCommand(opCodes[register.getProgramm_Counter()], op);
         if (register.checkForInterrupt() == false) {
 
+            //TODO check rp0 / dest bit
 
             exec.executeOperation(op, register);
+
+
             register.incrementProgrammCounter();
 
             System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "

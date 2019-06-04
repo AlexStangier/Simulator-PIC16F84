@@ -118,6 +118,8 @@ public class Execution {
                     case CLRWDT:
                     case SLEEP:
                     case RETFIE:
+                        retfie(op, reg);
+                        break;
                 }
         }
 
@@ -500,6 +502,13 @@ public class Execution {
     void returnCommand(Operation op, Register reg) {
         int returnTo = reg.pop();
         reg.setProgramm_Counter(returnTo + 1);
+    }
+
+    void retfie(Operation op, Register reg) {
+        int pcl = reg.pop();
+        reg.setProgramm_Counter(pcl);
+        reg.setIntcon(0);
+        reg.setGIE();
     }
 
     private void saveToRegister(Operation op, Register reg, int toCalc) {
