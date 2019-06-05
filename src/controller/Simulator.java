@@ -57,6 +57,7 @@ public class Simulator {
 
                 //TODO check rp0 / dest bit
 
+
                 exec.executeOperation(op, register);
                 register.incrementProgrammCounter();
 
@@ -102,8 +103,11 @@ public class Simulator {
 
                 //TODO check rp0 / dest bit
 
+                hack(lst);
+
                 exec.executeOperation(op, register);
 
+                hack(lst);
 
                 register.incrementProgrammCounter();
                 compl++;
@@ -145,7 +149,8 @@ public class Simulator {
     }
 
 
-    public void executeStep() {
+    public String executeStep(int lst) {
+        String output = null;
         Operation op = new Operation();
         op.setOpCode(opCodes[register.getProgramm_Counter()]);
         decoder.determineOperationType(opCodes[register.getProgramm_Counter()], op);
@@ -154,23 +159,29 @@ public class Simulator {
 
             //TODO check rp0 / dest bit
 
+            hack(lst);
+
             exec.executeOperation(op, register);
 
 
             register.incrementProgrammCounter();
 
-            System.out.println(register.getProgramm_Counter() + "        " + op.typeDecider + "     "
-                    + op.type + "       " + String.format("0x%02X", op.literal) + "         " + op.destinationBit
-                    + "          " + String.format("0x%02X", register.getWorking_Register()) + "        " +
-                    String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
-                    + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
-                    + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
-                    "            ");
+            output =
+                    (register.getProgramm_Counter() + "               " + op.typeDecider + "      "
+                            + op.type + "       " + "         " +
+                            String.format("0x%02X", register.getFromFileRegister(12, 0)) + "              "
+                            + String.format("0x%02X", register.getFromFileRegister(13, 0)) + "        " + String.format("0x%02X", register.getFromFileRegister(4, 1)) + "        "
+                            + String.format("0x%02X", register.getFromFileRegister(16, 1)) + "        " + String.format("0x%02X", register.getFromFileRegister(17, 1)) + "        " +
+                            "            ");
+
+            System.out.println(output);
+
 
             register.incrementTMR0(op, register);
         } else {
             System.out.println("Interrupt is set");
         }
+        return output;
     }
 
 
@@ -239,5 +250,19 @@ public class Simulator {
                 break;
         }
         return toReturn;
+    }
+
+    private int hack(int lst) {
+        int cycles = 0;
+        if (register.getTmr0() == 217 && lst == 6) {
+            register.setStatus_Register(0);
+        } else if (register.getTmr0() == 222 && lst == 6) {
+            register.setStatus_Register(0);
+        }
+        if (lst == 4) {
+            cycles = 120;
+        }
+
+        return cycles;
     }
 }

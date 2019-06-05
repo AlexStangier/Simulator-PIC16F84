@@ -504,7 +504,7 @@ public class Register {
         return arr;
     }
 
-    public static int[][] buildArray(int[] array, int ySize, int xSize) {
+    public int[][] buildArray(int[] array, int ySize, int xSize) {
         int[][] arr = new int[ySize][xSize];
         for (int i = 0; i < array.length; i++) {
             arr[i % ySize][i / ySize] = array[i];
@@ -529,6 +529,22 @@ public class Register {
             }
             System.out.println();
         }
+    }
+
+    public String printRegister(int[][] a) {
+        StringBuilder sb = new StringBuilder();
+        String toPrint = null;
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                if (i == (a[i].length - 1)) {
+                    sb.append(String.format("%02Xh ", a[i][j]));
+                } else {
+                    sb.append(String.format("%02Xh ", a[i][j]));
+                }
+            }
+        }
+        toPrint = sb.toString();
+        return toPrint;
     }
 
     public int[] getRam_Bank0() {

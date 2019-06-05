@@ -8,6 +8,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 
 public class SimulatorGUI {
@@ -37,7 +39,6 @@ public class SimulatorGUI {
     private JLabel rbifLabel;
     private JLabel gieLabel;
     private JCheckBox t0ieButt;
-    private JComboBox comboBox1;
     private JButton initializeButton;
     private JLabel lstLabel0;
     private JLabel lstLabel1;
@@ -91,6 +92,8 @@ public class SimulatorGUI {
     private JLabel rb5Label;
     private JLabel rb6Label;
     private JLabel rb7Label;
+    private JTextPane consOut;
+    private JTextPane fsrPanel;
     private JLabel EEIE;
     private JLabel stack1;
     private JLabel stack2;
@@ -103,7 +106,7 @@ public class SimulatorGUI {
     private JTable lstTable;
 
     private String pathToLST;
-    private int lst = 8;
+    private int lst = 6;
     private String[] lstArr;
     private Parser psr = new Parser();
     private static Register reg = new Register();
@@ -111,9 +114,6 @@ public class SimulatorGUI {
     private DefaultTableModel fsrModel;
     private Decoder dec = new Decoder();
     private Operation[] opArr;
-
-
-    //TODO RETFIE
 
     public SimulatorGUI() {
 
@@ -167,6 +167,10 @@ public class SimulatorGUI {
         });**/
 
 
+        //Register
+        fsrPanel.setText(reg.printRegister(reg.buildArray(reg.getRam_Bank1(), 10, 13)));
+
+
         //Start Button
         start.addActionListener(new ActionListener() {
             @Override
@@ -182,7 +186,7 @@ public class SimulatorGUI {
         stepButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                runningSimulation.executeStep();
+                consOut.setText(runningSimulation.executeStep(lst));
                 update(lstArr, reg);
             }
         });
@@ -435,7 +439,7 @@ public class SimulatorGUI {
 
     private void update(String[] lstArr, Register reg) {
         updateLST(lstArr);
-        fileregisterTable.setModel(updateFSR());
+        fsrPanel.setText(reg.printRegister(reg.buildArray(reg.getRam_Bank1(), 13, 10)));
         updateLabel(reg);
         updateStack();
     }
@@ -487,6 +491,10 @@ public class SimulatorGUI {
         rb5Label.setText(String.valueOf(0));
         rb6Label.setText(String.valueOf(0));
         rb7Label.setText(String.valueOf(0));
+        lstLabel0.setText("No Operation ");
+        lstLabel1.setText("No Operation ");
+        lstLabel2.setText("No Operation ");
+        lstLabel3.setText("No Operation ");
 
         reg.resetRegisters();
         updateLST(lstArr);
@@ -551,7 +559,7 @@ public class SimulatorGUI {
         frame.setContentPane(new SimulatorGUI().root);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(1200, 700);
+        frame.setSize(1250, 800);
         frame.setVisible(true);
 
 
