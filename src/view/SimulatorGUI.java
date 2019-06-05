@@ -8,8 +8,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
 
 public class SimulatorGUI {
@@ -94,6 +92,10 @@ public class SimulatorGUI {
     private JLabel rb7Label;
     private JTextPane consOut;
     private JTextPane fsrPanel;
+    private JTextField consOut2;
+    private JLabel intconAmount;
+    private JLabel statusAmmount;
+    private JLabel optionAmmount;
     private JLabel EEIE;
     private JLabel stack1;
     private JLabel stack2;
@@ -106,7 +108,7 @@ public class SimulatorGUI {
     private JTable lstTable;
 
     private String pathToLST;
-    private int lst = 6;
+    private int lst = 8;
     private String[] lstArr;
     private Parser psr = new Parser();
     private static Register reg = new Register();
@@ -123,6 +125,7 @@ public class SimulatorGUI {
         runningSimulation.setOpCodes();
         lstArr = psr.cleanUpArray(psr.readCommands(pathToLST));
         initView(reg, lstArr);
+        StringBuilder sb = new StringBuilder();
 
 
         //Combo Box
@@ -168,14 +171,16 @@ public class SimulatorGUI {
 
 
         //Register
-        fsrPanel.setText(reg.printRegister(reg.buildArray(reg.getRam_Bank1(), 10, 13)));
+        fsrPanel.setText(reg.printRegister(reg.buildArray(reg.getRam_Bank1(), 13, 10)));
 
 
         //Start Button
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                runningSimulation.startExecuting(lst, 127);
+                String con = runningSimulation.startExecuting(lst, 127);
+                sb.append(con + "\n");
+                consOut2.setText(sb.toString());
                 root.updateUI();
                 update(lstArr, reg);
 
@@ -186,7 +191,7 @@ public class SimulatorGUI {
         stepButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                consOut.setText(runningSimulation.executeStep(lst));
+                consOut2.setText(runningSimulation.executeStep(lst));
                 update(lstArr, reg);
             }
         });
@@ -224,7 +229,7 @@ public class SimulatorGUI {
         rbportchange.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.toggleRegister(3);
+                reg.toggleIntconRegister(3);
                 update(lstArr, reg);
             }
         });
@@ -233,7 +238,7 @@ public class SimulatorGUI {
         inteButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.toggleRegister(4);
+                reg.toggleIntconRegister(4);
                 update(lstArr, reg);
             }
         });
@@ -241,7 +246,7 @@ public class SimulatorGUI {
         t0ieButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.toggleRegister(5);
+                reg.toggleIntconRegister(5);
                 update(lstArr, reg);
             }
         });
@@ -308,7 +313,7 @@ public class SimulatorGUI {
         gieButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reg.toggleRegister(7);
+                reg.toggleIntconRegister(7);
                 update(lstArr, reg);
             }
         });
@@ -340,14 +345,18 @@ public class SimulatorGUI {
 
         /**INTCON**/
 
+        intconAmount.setText(String.valueOf(reg.getIntcon()));
+
         //GIE
-        gieLabel.setText(String.valueOf((reg.getIntcon() & 0b1000_0000) >> 7));
+        int gie = ((reg.getIntcon() & 0b1000_0000) >> 7);
+        gieLabel.setText(String.valueOf(gie));
 
         //EEIE
         eeieLabel.setText("0");
 
         //T0IE
-        t0ieLabel.setText(String.valueOf((reg.getIntcon() & 0b0010_0000) >> 5));
+        int toie = ((reg.getIntcon() & 0b0010_0000) >> 5);
+        t0ieLabel.setText(String.valueOf(toie));
 
         //INTE
         inteLabel.setText(String.valueOf((reg.getIntcon() & 0b0001_0000) >> 4));
@@ -371,20 +380,22 @@ public class SimulatorGUI {
 
         /** STATUS **/
 
+        statusAmmount.setText(Integer.toString(reg.getStatus_Register()));
+
         //Carry
         carryLabel.setText(Integer.toString(reg.getStatus_Register() & 0b0000_0001));
 
         //DC
-        dcLabel.setText("0");
+        dcLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0010) >> 1));
 
         //Zero
         zeroLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0100) >> 2));
 
         //Power Down
-        pdLabel.setText("0");
+        pdLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0000_1000) >> 3));
 
         //TO
-        toLabel.setText("0");
+        toLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0001_0000) >> 4));
 
         //RP0
         rp0Label.setText(Integer.toString((reg.getStatus_Register() & 0b0010_0000) >> 5));
@@ -397,29 +408,85 @@ public class SimulatorGUI {
 
         /** OPTION **/
 
+        optionAmmount.setText(Integer.toString(reg.getOption_Register()));
+
         //PS0
         ps0Label.setText(Integer.toString((reg.getOption_Register() & 0b0000_0001)));
 
         //PS1
-        ps1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0010) >> 1));
+        ps1Label.setText(Integer.toString((reg.getOption_Register() & 0b0000_0010) >> 1));
 
         //PS2
-        ps1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0000_0100) >> 2));
+        ps2Label.setText(Integer.toString((reg.getOption_Register() & 0b0000_0100) >> 2));
 
         //PSA
-        psaLabel.setText("0");
+        psaLabel.setText(Integer.toString((reg.getOption_Register() & 0b0000_1000) >> 3));
 
         //T0SE
-        t0seLabel.setText("0");
+        t0seLabel.setText(Integer.toString((reg.getOption_Register() & 0b0001_0000) >> 4));
 
         //T0CS
-        t0csLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0010_0000) >> 5));
+        t0csLabel.setText(Integer.toString((reg.getOption_Register() & 0b0010_0000) >> 5));
 
         //INETDG
-        inetdgLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0100_0000) >> 6));
+        inetdgLabel.setText(Integer.toString((reg.getOption_Register() & 0b0100_0000) >> 6));
 
         //RBPU
-        rbpuLabel.setText(Integer.toString((reg.getStatus_Register() & 0b1000_0000) >> 7));
+        rbpuLabel.setText(Integer.toString((reg.getOption_Register() & 0b1000_0000) >> 7));
+
+        /**  RA TRIS  **/
+
+
+        //ra0
+        ra0Label.setText(Integer.toString((reg.getTrisa() & 0b0000_0001)));
+
+        //ra1
+        ra1LAbel.setText(Integer.toString((reg.getTrisa() & 0b0000_0010) >> 1));
+
+        //ra2
+        ra2Label.setText(Integer.toString((reg.getTrisa() & 0b0000_0100) >> 2));
+
+        //ra3
+        ra3Label.setText(Integer.toString((reg.getTrisa() & 0b0000_1000) >> 3));
+
+        //ra4
+        ra4Label.setText(Integer.toString((reg.getTrisa() & 0b0001_0000) >> 4));
+
+        //ra5
+        ra5LAbel.setText(Integer.toString((reg.getTrisa() & 0b0010_0000) >> 5));
+
+        //ra6
+        ra6Label.setText(Integer.toString((reg.getTrisa() & 0b0100_0000) >> 6));
+
+        //ra7
+        ra7Label.setText(Integer.toString((reg.getTrisa() & 0b1000_0000) >> 7));
+
+        /**  RB TRIS  **/
+
+
+        //ra0
+        rb0Label.setText(Integer.toString((reg.getTrisb() & 0b0000_0001)));
+
+        //ra1
+        rb1Label.setText(Integer.toString((reg.getTrisb() & 0b0000_0010) >> 1));
+
+        //ra2
+        rb2Label.setText(Integer.toString((reg.getTrisb() & 0b0000_0100) >> 2));
+
+        //ra3
+        rb3LAbel.setText(Integer.toString((reg.getTrisb() & 0b0000_1000) >> 3));
+
+        //ra4
+        rb4Label.setText(Integer.toString((reg.getTrisb() & 0b0001_0000) >> 4));
+
+        //ra5
+        rb5Label.setText(Integer.toString((reg.getTrisb() & 0b0010_0000) >> 5));
+
+        //ra6
+        rb6Label.setText(Integer.toString((reg.getTrisb() & 0b0100_0000) >> 6));
+
+        //ra7
+        rb7Label.setText(Integer.toString((reg.getTrisb() & 0b1000_0000) >> 7));
 
     }
 
@@ -495,6 +562,9 @@ public class SimulatorGUI {
         lstLabel1.setText("No Operation ");
         lstLabel2.setText("No Operation ");
         lstLabel3.setText("No Operation ");
+        intconAmount.setText("0");
+        statusAmmount.setText("0");
+        optionAmmount.setText("0");
 
         reg.resetRegisters();
         updateLST(lstArr);

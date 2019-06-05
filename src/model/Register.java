@@ -65,8 +65,8 @@ public class Register {
         working_Register = 0;
 
         intcon = 0;
-        option_Register = 0;
-        status_Register = (status_Register | 0x18);
+        option_Register = 255;
+        status_Register = 24;
         tmr0 = 0;
 
         trisa = 31;
@@ -89,7 +89,7 @@ public class Register {
      * Stackoperations
      **/
 
-    public static void incrementStackPointer() {
+    public void incrementStackPointer() {
 
         if (stackpointer == 7) {
             stackpointer = 0;
@@ -158,7 +158,7 @@ public class Register {
         return stack_Register[index];
     }
 
-    public static void setStack(Register reg, int pcl) {
+    public void setStack(Register reg, int pcl) {
         stack_Register[stackpointer] = pcl;
     }
 
@@ -184,7 +184,7 @@ public class Register {
     }
 
 
-    public static int getFromStatus_Register(int index) {
+    public int getFromStatus_Register(int index) {
         int toReturn = 0;
         switch (index) {
             case 0: //Carry Flag
@@ -204,11 +204,11 @@ public class Register {
      * Status Register
      **/
 
-    public static int getStatus_Register() {
+    public int getStatus_Register() {
         return status_Register;
     }
 
-    public static void setStatus_Register(int status_Register) {
+    public void setStatus_Register(int status_Register) {
         Register.status_Register = status_Register;
     }
 
@@ -216,11 +216,11 @@ public class Register {
      * Option Register
      **/
 
-    public static int getOption_Register() {
+    public int getOption_Register() {
         return option_Register;
     }
 
-    public static void setOption_Register(int option_Register) {
+    public void setOption_Register(int option_Register) {
         Register.option_Register = option_Register;
     }
 
@@ -229,7 +229,7 @@ public class Register {
      **/
 
 
-    public static void setFlag(int i) {
+    public void setFlag(int i) {
         switch (i) {
             case 0:
                 status_Register = (status_Register | 0b0000_0001);
@@ -246,7 +246,7 @@ public class Register {
         }
     }
 
-    public static void resetFlag(int i) {
+    public void resetFlag(int i) {
         switch (i) {
             case 0:
                 status_Register = (status_Register & 0b0000_0001);
@@ -287,6 +287,17 @@ public class Register {
 
     /** Option Register**/
 
+    /**
+     * TRISA
+     **/
+
+    public static int getTrisa() {
+        return trisa;
+    }
+
+    public static int getTrisb() {
+        return trisb;
+    }
 
     /**
      * File IO Mechanics
@@ -302,13 +313,13 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x1:             //TMR0
-                        tmr0 += toStore;
+                        tmr0 = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        programm_Counter += toStore;
+                        programm_Counter = toStore;
                         break;
                     case 0x03:            //Status
-                        status_Register += toStore;
+                        status_Register = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank0[4] = toStore;
@@ -323,7 +334,7 @@ public class Register {
                         ram_Bank0[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        intcon += toStore;
+                        intcon = toStore;
                         break;
                 }
             } else if (op.getDestinationBit() == 1) {
@@ -333,28 +344,28 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x01:            //TMR0
-                        option_Register += toStore;
+                        option_Register = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        programm_Counter += toStore;
+                        programm_Counter = toStore;
                         break;
                     case 0x03:            //Status
-                        status_Register += toStore;
+                        status_Register = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;
                         break;
                     case 0x05:            //TRIS A
-                        trisa += toStore;
+                        trisa = toStore;
                         break;
                     case 0x06:            //TRIS B
-                        trisb += toStore;
+                        trisb = toStore;
                         break;
                     case 0x0A:            //Program Counter Latch High
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        intcon += toStore;
+                        intcon = toStore;
                         break;
                 }
             }
@@ -427,7 +438,7 @@ public class Register {
                         ram_Bank1[10] = toStore;
                         break;
                     case 0x0B:            //INTCON
-                        intcon += toStore;
+                        intcon = toStore;
                         break;
                 }
             }
@@ -494,7 +505,7 @@ public class Register {
         System.out.print(arr[i - 1]);
     }
 
-    public static String[][] buildArrayFromFSR(int xSize, int ySize) {
+    public String[][] buildArrayFromFSR(int xSize, int ySize) {
         String[][] arr = new String[xSize][ySize];
         for (int i = 0; i < arr.length; i++) {
             for (int j = 0; j < arr[i].length; j++) {
@@ -512,7 +523,7 @@ public class Register {
         return arr;
     }
 
-    public static Integer[][] buildInteger(int[] array, int ySize, int xSize) {
+    public Integer[][] buildInteger(int[] array, int ySize, int xSize) {
         Integer[][] arr = new Integer[xSize][ySize];
         for (int i = 0; i < arr.length; i++) {
             arr[i % ySize][i / ySize] = array[i];
@@ -522,7 +533,7 @@ public class Register {
     }
 
 
-    public static void printTwoDimensionalArray(int[][] a) {
+    public void printTwoDimensionalArray(int[][] a) {
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[i].length; j++) {
                 System.out.printf(String.format("%02Xh ", a[i][j]));
@@ -536,11 +547,7 @@ public class Register {
         String toPrint = null;
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[i].length; j++) {
-                if (i == (a[i].length - 1)) {
-                    sb.append(String.format("%02Xh ", a[i][j]));
-                } else {
-                    sb.append(String.format("%02Xh ", a[i][j]));
-                }
+                sb.append(String.format("%02Xh ", a[i][j]));
             }
         }
         toPrint = sb.toString();
@@ -566,6 +573,8 @@ public class Register {
 
     public void interrupt() {
         push(programm_Counter);
+        resetGIE();
+        programm_Counter = 0x4;
     }
 
     public static int getTmr0() {
@@ -583,7 +592,7 @@ public class Register {
     }
 
     private void checkForTMR0Overflow(Register reg) {
-        if (tmr0 > 255) {
+        if (tmr0 > 0xFF) {
             //Check for Timer enable Bit TOIE
             if ((intcon & 0b0010_0000) == 32) {
                 setT0IF();
@@ -647,6 +656,7 @@ public class Register {
 
             switch (i) {
                 case 0:
+
                     portb = +1;
                     break;
                 case 1:
@@ -672,6 +682,70 @@ public class Register {
         }
     }
 
+    /**
+     * OPTION
+     **/
+
+    public void toggleOptionRegister(int index) {
+        switch (index) {
+            case 0:
+                if ((option_Register & 0b0000_0001) > 0) {
+                    resetRBIF();
+                } else {
+                    setRBIF();
+                }
+                break;
+            case 1:
+                if ((option_Register & 0b0000_0010) > 0) {
+                    resetINTF();
+                } else {
+                    setINTF();
+                }
+                break;
+            case 2:
+                if ((option_Register & 0b0000_0100) > 0) {
+                    resetT0IF();
+                } else {
+                    setT0IF();
+                }
+                break;
+            case 3:
+                if ((option_Register & 0b0000_1000) > 0) {
+                    resetRBIE();
+                } else {
+                    setRBIE();
+                }
+                break;
+            case 4:
+                if ((option_Register & 0b0001_0000) > 0) {
+                    resetINTE();
+                } else {
+                    setINTE();
+                }
+                break;
+            case 5:
+                if ((option_Register & 0b0010_0000) > 0) {
+                    resetTOIE();
+                } else {
+                    setTOIE();
+                }
+                break;
+            case 6:
+                if ((option_Register & 0b0100_0000) > 0) {
+                    resetEEIE();
+                } else {
+                    setEEIE();
+                }
+                break;
+            case 7:
+                if ((option_Register & 0b1000_0000) > 0) {
+                    resetGIE();
+                } else {
+                    setGIE();
+                }
+                break;
+        }
+    }
 
     /**
      * INTCON Register
@@ -741,7 +815,7 @@ public class Register {
         intcon = (intcon | 0b0000_0001);
     }
 
-    public void toggleRegister(int index) {
+    public void toggleIntconRegister(int index) {
         switch (index) {
             case 0:
                 if ((intcon & 0b0000_0001) > 0) {
@@ -807,17 +881,17 @@ public class Register {
         //Check GIE
         if ((intcon & 0b1000_0000) == 128) {
             if ((intcon & 0b0000_0001) == 1) {
-                interrupted = true;
+                interrupt();
             } else if ((intcon & 0b0000_0010) == 2) {
-                interrupted = true;
+                interrupt();
             } else if ((intcon & 0b0000_0100) == 4) {
-                interrupted = true;
+                interrupt();
             }
         }
         return interrupted;
     }
 
-    public static void setIntcon(int intcon) {
+    public void setIntcon(int intcon) {
         Register.intcon = intcon;
     }
 }
