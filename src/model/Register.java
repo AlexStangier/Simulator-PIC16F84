@@ -279,6 +279,14 @@ public class Register {
         }
     }
 
+    public void toogleCFlag() {
+        if ((status_Register & 0b0000_0001) == 1) {
+            resetFlag(0);
+        } else {
+            setFlag(0);
+        }
+    }
+
     public int checkForStatusFlags(int result) {
         checkForZeroFlag(result);
         return checkForCarryFlag(result);
@@ -417,13 +425,13 @@ public class Register {
                         setFlag(0);
                         break;
                     case 0x01:            //Option Register
-                        option_Register += toStore;
+                        option_Register = toStore;
                         break;
                     case 0x02:            //Program Counter Latch Low
-                        programm_Counter += toStore;
+                        programm_Counter = toStore;
                         break;
                     case 0x03:            //Status
-                        status_Register += toStore;
+                        status_Register = toStore;
                         break;
                     case 0x04:            //File Save Register
                         ram_Bank1[4] = toStore;

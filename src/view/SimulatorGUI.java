@@ -112,6 +112,7 @@ public class SimulatorGUI {
     private JLabel pb5;
     private JLabel pb6;
     private JLabel pb7;
+    private JRadioButton cFlagToggleRadioButton;
     private JLabel EEIE;
     private JLabel stack1;
     private JLabel stack2;
@@ -128,9 +129,8 @@ public class SimulatorGUI {
     /**
      * Settings
      **/
-    private int lst = 8;
-    private double clockFreq = 2000000;             //4000000MHz default
-
+    private int lst = 7;
+    private double clockFreq = 4000000;             //4000000MHz default
 
 
     private String[] lstArr;
@@ -461,6 +461,13 @@ public class SimulatorGUI {
         });
 
 
+        cFlagToggleRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.toogleCFlag();
+                update(lstArr, reg);
+            }
+        });
     }
 
     private void updateStack() {
@@ -474,7 +481,7 @@ public class SimulatorGUI {
         tmr0Label.setText(Integer.toString(reg.getTmr0()));
 
         //Runtime Display
-        runtimeLabel.setText((reg.getTmr0() * timePerCycle)+" µs");
+        runtimeLabel.setText((reg.getTmr0() * timePerCycle) + " µs");
 
         //WREG Display
         wreglabel.setText(String.valueOf(String.format("0x%02X", reg.getWorking_Register())));
@@ -540,13 +547,13 @@ public class SimulatorGUI {
         toLabel.setText(Integer.toString((reg.getStatus_Register() & 0b0001_0000) >> 4));
 
         //RP0
-        rp0Label.setText(Integer.toString((reg.getStatus_Register() & 0b0010_0000) >> 5));
+        int rp0Val = (reg.getStatus_Register() & 0b0010_0000) >> 5;
+        rp0Label.setText(Integer.toString((rp0Val)));
 
         //RP1
         rp1Label.setText(Integer.toString((reg.getStatus_Register() & 0b0100_0000) >> 6));
 
         //IRP
-        rp0Label.setText("0");
 
         /** OPTION **/
 
