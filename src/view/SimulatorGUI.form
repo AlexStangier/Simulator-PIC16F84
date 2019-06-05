@@ -530,68 +530,68 @@
                       <text value="PIN"/>
                     </properties>
                   </component>
-                  <component id="a8116" class="javax.swing.JLabel">
+                  <component id="a8116" class="javax.swing.JLabel" binding="pb0">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb0"/>
                     </properties>
                   </component>
-                  <component id="76511" class="javax.swing.JLabel">
+                  <component id="76511" class="javax.swing.JLabel" binding="pb1">
                     <constraints>
                       <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb1"/>
                     </properties>
                   </component>
-                  <component id="2de57" class="javax.swing.JLabel">
+                  <component id="2de57" class="javax.swing.JLabel" binding="pb2">
                     <constraints>
                       <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb2"/>
                     </properties>
                   </component>
-                  <component id="d9850" class="javax.swing.JLabel">
+                  <component id="d9850" class="javax.swing.JLabel" binding="pb3">
                     <constraints>
                       <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb3"/>
                     </properties>
                   </component>
-                  <component id="6b7f1" class="javax.swing.JLabel">
+                  <component id="6b7f1" class="javax.swing.JLabel" binding="pb4">
                     <constraints>
                       <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb4"/>
                     </properties>
                   </component>
-                  <component id="5420c" class="javax.swing.JLabel">
+                  <component id="5420c" class="javax.swing.JLabel" binding="pb5">
                     <constraints>
                       <grid row="2" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb5"/>
                     </properties>
                   </component>
-                  <component id="aea5c" class="javax.swing.JLabel">
+                  <component id="aea5c" class="javax.swing.JLabel" binding="pb6">
                     <constraints>
                       <grid row="2" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb6"/>
                     </properties>
                   </component>
-                  <component id="e3cf5" class="javax.swing.JLabel">
+                  <component id="e3cf5" class="javax.swing.JLabel" binding="pb7">
                     <constraints>
                       <grid row="2" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pinb7"/>
                     </properties>
                   </component>
                 </children>
@@ -777,7 +777,7 @@
                       <text value="PIN"/>
                     </properties>
                   </component>
-                  <component id="86533" class="javax.swing.JLabel">
+                  <component id="86533" class="javax.swing.JLabel" binding="pa0">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -785,60 +785,60 @@
                       <text value="Label"/>
                     </properties>
                   </component>
-                  <component id="65766" class="javax.swing.JLabel">
+                  <component id="65766" class="javax.swing.JLabel" binding="pa1">
                     <constraints>
                       <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina1"/>
                     </properties>
                   </component>
-                  <component id="c6f6a" class="javax.swing.JLabel">
+                  <component id="c6f6a" class="javax.swing.JLabel" binding="pa2">
                     <constraints>
                       <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value=""/>
                     </properties>
                   </component>
-                  <component id="5335a" class="javax.swing.JLabel">
+                  <component id="5335a" class="javax.swing.JLabel" binding="pa3">
                     <constraints>
                       <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina3"/>
                     </properties>
                   </component>
-                  <component id="83c22" class="javax.swing.JLabel">
+                  <component id="83c22" class="javax.swing.JLabel" binding="pa4">
                     <constraints>
                       <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina4"/>
                     </properties>
                   </component>
-                  <component id="ac1c0" class="javax.swing.JLabel">
+                  <component id="ac1c0" class="javax.swing.JLabel" binding="pa5">
                     <constraints>
                       <grid row="2" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina5"/>
                     </properties>
                   </component>
-                  <component id="fc220" class="javax.swing.JLabel">
+                  <component id="fc220" class="javax.swing.JLabel" binding="pa6">
                     <constraints>
                       <grid row="2" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina6"/>
                     </properties>
                   </component>
-                  <component id="cb91f" class="javax.swing.JLabel">
+                  <component id="cb91f" class="javax.swing.JLabel" binding="pa7">
                     <constraints>
                       <grid row="2" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Label"/>
+                      <text value="pina7"/>
                     </properties>
                   </component>
                 </children>

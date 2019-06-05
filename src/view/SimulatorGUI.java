@@ -96,6 +96,22 @@ public class SimulatorGUI {
     private JLabel intconAmount;
     private JLabel statusAmmount;
     private JLabel optionAmmount;
+    private JLabel pa0;
+    private JLabel pa1;
+    private JLabel pa2;
+    private JLabel pa3;
+    private JLabel pa4;
+    private JLabel pa5;
+    private JLabel pa6;
+    private JLabel pa7;
+    private JLabel pb0;
+    private JLabel pb1;
+    private JLabel pb2;
+    private JLabel pb3;
+    private JLabel pb4;
+    private JLabel pb5;
+    private JLabel pb6;
+    private JLabel pb7;
     private JLabel EEIE;
     private JLabel stack1;
     private JLabel stack2;
@@ -106,9 +122,17 @@ public class SimulatorGUI {
     private JLabel stack7;
     private Simulator runningSimulation;
     private JTable lstTable;
-
     private String pathToLST;
+    private double timePerCycle = 1;
+
+    /**
+     * Settings
+     **/
     private int lst = 8;
+    private double clockFreq = 2000000;             //4000000MHz default
+
+
+
     private String[] lstArr;
     private Parser psr = new Parser();
     private static Register reg = new Register();
@@ -125,6 +149,7 @@ public class SimulatorGUI {
         runningSimulation.setOpCodes();
         lstArr = psr.cleanUpArray(psr.readCommands(pathToLST));
         initView(reg, lstArr);
+        calcCycleTime(clockFreq);
         StringBuilder sb = new StringBuilder();
 
 
@@ -215,11 +240,128 @@ public class SimulatorGUI {
             }
         });
 
+        /** RA Buttons **/
+
+        RA0Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortARegister(0);
+                update(lstArr, reg);
+            }
+
+        });
+
+        RA1Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortARegister(1);
+                update(lstArr, reg);
+            }
+
+        });
+
+        RA2Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortARegister(2);
+                update(lstArr, reg);
+            }
+
+        });
+
+        RA3Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortARegister(3);
+                update(lstArr, reg);
+            }
+
+        });
+
+        RA4T0CKLButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortARegister(4);
+                update(lstArr, reg);
+            }
+
+        });
+
+
+        /** RB Buttons **/
 
         rb0.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(0);
                 reg.rb0Interrupt();
+                update(lstArr, reg);
+            }
+
+        });
+
+
+        rb1Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(1);
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb2Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(2);
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb3Butt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(3);
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(4);
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb5.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(5);
+
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb6.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(6);
+
+                update(lstArr, reg);
+            }
+
+        });
+
+        rb7.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reg.togglePortBRegister(7);
+
                 update(lstArr, reg);
             }
 
@@ -332,7 +474,7 @@ public class SimulatorGUI {
         tmr0Label.setText(Integer.toString(reg.getTmr0()));
 
         //Runtime Display
-        runtimeLabel.setText(String.valueOf(reg.getTmr0()));
+        runtimeLabel.setText((reg.getTmr0() * timePerCycle)+" µs");
 
         //WREG Display
         wreglabel.setText(String.valueOf(String.format("0x%02X", reg.getWorking_Register())));
@@ -461,8 +603,17 @@ public class SimulatorGUI {
         //ra7
         ra7Label.setText(Integer.toString((reg.getTrisa() & 0b1000_0000) >> 7));
 
-        /**  RB TRIS  **/
+        pa0.setText(Integer.toString(((reg.getPorta() & 0b0000_0001))));
+        pa1.setText(Integer.toString(((reg.getPorta() & 0b0000_0010)) >> 1));
+        pa2.setText(Integer.toString(((reg.getPorta() & 0b0000_0100)) >> 2));
+        pa3.setText(Integer.toString(((reg.getPorta() & 0b0000_1000)) >> 3));
+        pa4.setText(Integer.toString(((reg.getPorta() & 0b0001_0000)) >> 4));
+        pa5.setText(Integer.toString(((reg.getPorta() & 0b0010_0000)) >> 5));
+        pa6.setText(Integer.toString(((reg.getPorta() & 0b0100_0000)) >> 6));
+        pa7.setText(Integer.toString(((reg.getPorta() & 0b1000_0000)) >> 7));
 
+
+        /**  RB TRIS  **/
 
         //ra0
         rb0Label.setText(Integer.toString((reg.getTrisb() & 0b0000_0001)));
@@ -487,6 +638,20 @@ public class SimulatorGUI {
 
         //ra7
         rb7Label.setText(Integer.toString((reg.getTrisb() & 0b1000_0000) >> 7));
+
+        pb0.setText(Integer.toString((reg.getPortb() & 0b0000_0001)));
+        pb1.setText(Integer.toString(((reg.getPortb() & 0b0000_0010)) >> 1));
+        pb2.setText(Integer.toString(((reg.getPortb() & 0b0000_0100)) >> 2));
+        pb3.setText(Integer.toString(((reg.getPortb() & 0b0000_1000)) >> 3));
+        pb4.setText(Integer.toString(((reg.getPortb() & 0b0001_0000)) >> 4));
+        pb5.setText(Integer.toString(((reg.getPortb() & 0b0010_0000)) >> 5));
+        pb6.setText(Integer.toString(((reg.getPortb() & 0b0100_0000)) >> 6));
+        pb7.setText(Integer.toString(((reg.getPortb() & 0b1000_0000)) >> 7));
+
+    }
+
+    private void calcCycleTime(double clockFreq) {
+        timePerCycle = (double) 4000000 / clockFreq;
 
     }
 
@@ -562,6 +727,23 @@ public class SimulatorGUI {
         lstLabel1.setText("No Operation ");
         lstLabel2.setText("No Operation ");
         lstLabel3.setText("No Operation ");
+        pa0.setText("0");
+        pa1.setText("0");
+        pa2.setText("0");
+        pa3.setText("0");
+        pa4.setText("0");
+        pa5.setText("0");
+        pa6.setText("0");
+        pa7.setText("0");
+        pb0.setText("0");
+        pb1.setText("0");
+        pb2.setText("0");
+        pb3.setText("0");
+        pb4.setText("0");
+        pb5.setText("0");
+        pb6.setText("0");
+        pb7.setText("0");
+
         intconAmount.setText("0");
         statusAmmount.setText("0");
         optionAmmount.setText("0");

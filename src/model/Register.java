@@ -784,35 +784,35 @@ public class Register {
     }
 
     public void resetGIE() {
-        intcon = (intcon | 0b1000_0000);
+        intcon = (intcon & 0b0111_1111);
     }
 
     public void resetEEIE() {
-        intcon = (intcon | 0b0100_0000);
+        intcon = (intcon & 0b1011_1111);
     }
 
     public void resetTOIE() {
-        intcon = (intcon | 0b0010_0000);
+        intcon = (intcon & 0b1101_1111);
     }
 
     public void resetINTE() {
-        intcon = (intcon | 0b0001_0000);
+        intcon = (intcon & 0b1110_1111);
     }
 
     public void resetRBIE() {
-        intcon = (intcon | 0b0000_1000);
+        intcon = (intcon & 0b1111_0111);
     }
 
     public void resetT0IF() {
-        intcon = (intcon | 0b0000_0100);
+        intcon = (intcon & 0b1111_1011);
     }
 
     public void resetINTF() {
-        intcon = (intcon | 0b0000_0010);
+        intcon = (intcon & 0b1111_1101);
     }
 
     public void resetRBIF() {
-        intcon = (intcon | 0b0000_0001);
+        intcon = (intcon & 0b1111_1110);
     }
 
     public void toggleIntconRegister(int index) {
@@ -875,6 +875,255 @@ public class Register {
                 break;
         }
     }
+
+
+    /**
+     * PORT A Toggle
+     **/
+
+    public void togglePortARegister(int index) {
+        switch (index) {
+            case 0:
+                if ((porta & 0b0000_0001) > 0) {
+                    resetRA0();
+                } else {
+                    setRA0();
+                }
+                break;
+            case 1:
+                if ((porta & 0b0000_0010) > 0) {
+                    resetRA1();
+                } else {
+                    setRA1();
+                }
+                break;
+            case 2:
+                if ((porta & 0b0000_0100) > 0) {
+                    resetRA2();
+                } else {
+                    setRA2();
+                }
+                break;
+            case 3:
+                if ((porta & 0b0000_1000) > 0) {
+                    resetRA3();
+                } else {
+                    setRA3();
+                }
+                break;
+            case 4:
+                if ((porta & 0b0001_0000) > 0) {
+                    resetRA4();
+                } else {
+                    setRA4();
+                }
+                break;
+            case 5:
+                if ((porta & 0b0010_0000) > 0) {
+                    resetRA5();
+                } else {
+                    setRA5();
+                }
+                break;
+        }
+    }
+
+    public void setRA5() {
+        porta = (porta | 0b0010_0000);
+    }
+
+    public void setRA4() {
+        porta = (porta | 0b0001_0000);
+    }
+
+    public void setRA3() {
+        porta = (porta | 0b0000_1000);
+    }
+
+    public void setRA2() {
+        porta = (porta | 0b0000_0100);
+    }
+
+    public void setRA1() {
+        porta = (porta | 0b0000_0010);
+    }
+
+    public void setRA0() {
+        porta = (porta | 0b0000_0001);
+    }
+
+    public void resetRA5() {
+        porta = (porta & 0b1101_1111);
+    }
+
+    public void resetRA4() {
+        porta = (porta & 0b1110_1111);
+    }
+
+    public void resetRA3() {
+        porta = (porta & 0b1111_0111);
+    }
+
+    public void resetRA2() {
+        porta = (porta & 0b1111_1011);
+    }
+
+    public void resetRA1() {
+        porta = (porta & 0b1111_1101);
+    }
+
+    public void resetRA0() {
+        porta = (porta & 0b1111_1110);
+    }
+
+    public int getPorta() {
+        return porta;
+    }
+
+    public void setPorta(int porta) {
+        Register.porta = porta;
+    }
+
+    /**
+     * PORT B Toggle
+     **/
+
+    public void togglePortBRegister(int index) {
+        switch (index) {
+            case 0:
+                if ((portb & 0b0000_0001) > 0) {
+                    resetRB0();
+                } else {
+                    setRB0();
+                }
+                break;
+            case 1:
+                if ((portb & 0b0000_0010) > 0) {
+                    resetRB1();
+                } else {
+                    setRB1();
+                }
+                break;
+            case 2:
+                if ((portb & 0b0000_0100) > 0) {
+                    resetRB2();
+                } else {
+                    setRB2();
+                }
+                break;
+            case 3:
+                if ((portb & 0b0000_1000) > 0) {
+                    resetRB3();
+                } else {
+                    setRB3();
+                }
+                break;
+            case 4:
+                if ((portb & 0b0001_0000) > 0) {
+                    resetRB4();
+                } else {
+                    setRB4();
+                }
+                break;
+            case 5:
+                if ((portb & 0b0010_0000) > 0) {
+                    resetRB5();
+                } else {
+                    setRB5();
+                }
+                break;
+            case 6:
+                if ((portb & 0b0100_0000) > 0) {
+                    resetRB6();
+                } else {
+                    setRB6();
+                }
+                break;
+            case 7:
+                if ((portb & 0b1000_0000) > 0) {
+                    resetRB7();
+                } else {
+                    setRB7();
+                }
+                break;
+        }
+    }
+
+    public void setRB7() {
+        portb = (portb | 0b1000_0000);
+    }
+
+    public void setRB6() {
+        portb = (portb | 0b0100_0000);
+    }
+
+    public void setRB5() {
+        portb = (portb | 0b0010_0000);
+    }
+
+    public void setRB4() {
+        portb = (portb | 0b0001_0000);
+    }
+
+    public void setRB3() {
+        portb = (portb | 0b0000_1000);
+    }
+
+    public void setRB2() {
+        portb = (portb | 0b0000_0100);
+    }
+
+    public void setRB1() {
+        portb = (portb | 0b0000_0010);
+    }
+
+    public void setRB0() {
+        portb = (portb | 0b0000_0001);
+    }
+
+    public void resetRB7() {
+        portb = (portb & 0b0111_1111);
+    }
+
+    public void resetRB6() {
+        portb = (portb & 0b1011_1111);
+    }
+
+    public void resetRB5() {
+        portb = (portb & 0b1101_1111);
+    }
+
+    public void resetRB4() {
+        portb = (portb & 0b1110_1111);
+    }
+
+    public void resetRB3() {
+        portb = (portb & 0b1111_0111);
+    }
+
+    public void resetRB2() {
+        portb = (portb & 0b1111_1011);
+    }
+
+    public void resetRB1() {
+        portb = (portb & 0b1111_1101);
+    }
+
+    public void resetRB0() {
+        portb = (portb & 0b1111_1110);
+    }
+
+    public void setPortb(int portb) {
+        Register.portb = portb;
+    }
+
+    public int getPortb() {
+        return portb;
+    }
+
+    /**
+     * General Interrupt Handling
+     **/
 
     public boolean checkForInterrupt() {
         boolean interrupted = false;
